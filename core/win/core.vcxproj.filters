@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Gestures">
+      <UniqueIdentifier>{81d9f4ae-0399-4324-922f-e26d74d48848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gestures\Header Files">
+      <UniqueIdentifier>{515715d9-5f18-4669-9151-bde1c19ddb92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gestures\Source Files">
+      <UniqueIdentifier>{eab7cb8e-840f-4f28-93e5-91103af19442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core">
+      <UniqueIdentifier>{fbfef03c-cd32-4b27-9d1c-92e4bfbb92b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Core\Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Core\Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Geometry">
+      <UniqueIdentifier>{55bc6f4a-41de-4d2f-abc6-bfeefd9e7575}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry\Header Files">
+      <UniqueIdentifier>{a7d4e587-d379-4ef6-87af-5ce17f2cee6b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Geometry\Source Files">
+      <UniqueIdentifier>{678f4e86-a724-4cfe-9496-21c57491ecaf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\core\YUVImage.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\gestures\GestureRecognitor.h">
+      <Filter>Gestures\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\gestures\Gesture.h">
+      <Filter>Gestures\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\geometry\Vector3D.h">
+      <Filter>Geometry\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\gestures\GestureDetector.h">
+      <Filter>Gestures\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\ContourDetector.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\geometry\Matrix.h">
+      <Filter>Geometry\Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\YUVImage.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gestures\GestureRecognitor.cpp">
+      <Filter>Gestures\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gestures\Gesture.cpp">
+      <Filter>Gestures\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\geometry\Vector3D.cpp">
+      <Filter>Geometry\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\gestures\GestureDetector.cpp">
+      <Filter>Gestures\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ContourDetector.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

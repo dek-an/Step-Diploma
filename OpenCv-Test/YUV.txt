@@ -1,0 +1,6 @@
+YUV format
+
+Each byte for Y or U or V
+Sequence: Y1 U1 V1 - Y2 U2 V2 -...- 
+Data size: Width * Height * 3
+Converting: cvCvtColor(frameRGB, frameYUV, CV_BGR2YUV);

@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCv-Test", "OpenCv-Test.vcxproj", "{45681E6B-FC10-425C-BDA1-01229D814B7C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "core", "..\..\core\win\core.vcxproj", "{34F66F88-48C4-43ED-B3F8-8EB4209AC46A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "unitTests", "..\..\unitTests\win\unitTests.vcxproj", "{97DE8F4C-A18B-4FEA-B4EA-A9BA36624F6C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{45681E6B-FC10-425C-BDA1-01229D814B7C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{45681E6B-FC10-425C-BDA1-01229D814B7C}.Debug|Win32.Build.0 = Debug|Win32
+		{45681E6B-FC10-425C-BDA1-01229D814B7C}.Release|Win32.ActiveCfg = Release|Win32
+		{45681E6B-FC10-425C-BDA1-01229D814B7C}.Release|Win32.Build.0 = Release|Win32
+		{34F66F88-48C4-43ED-B3F8-8EB4209AC46A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{34F66F88-48C4-43ED-B3F8-8EB4209AC46A}.Debug|Win32.Build.0 = Debug|Win32
+		{34F66F88-48C4-43ED-B3F8-8EB4209AC46A}.Release|Win32.ActiveCfg = Release|Win32
+		{34F66F88-48C4-43ED-B3F8-8EB4209AC46A}.Release|Win32.Build.0 = Release|Win32
+		{97DE8F4C-A18B-4FEA-B4EA-A9BA36624F6C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{97DE8F4C-A18B-4FEA-B4EA-A9BA36624F6C}.Debug|Win32.Build.0 = Debug|Win32
+		{97DE8F4C-A18B-4FEA-B4EA-A9BA36624F6C}.Release|Win32.ActiveCfg = Release|Win32
+		{97DE8F4C-A18B-4FEA-B4EA-A9BA36624F6C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

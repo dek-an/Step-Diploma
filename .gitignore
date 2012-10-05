@@ -10,3 +10,14 @@
 *.lai
 *.la
 *.a
+
+# Visual Studio
+ipch
+*.suo
+*.sdf
+*.opensdf
+*.sln.cache
+*.pro.user
+*.vcxproj.user
+
+/out
