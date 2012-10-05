@@ -65,8 +65,10 @@ public:
     const unsigned char* data() const;
 
 public:
-    YUVImage* doBinarizeImage(BinarizationFunction binFunc);
-    void smoothBinarizeImage(int radius);
+    void doBinaryMask(BinarizationFunction binFunc);
+    void smoothBinaryMask(int radius = 1);
+    inline const Matrix<unsigned char>& getBinaryMask(void) const { return m_binaryMask; }
+    inline const Matrix<int>& getIntegralMask(void) const { return m_integral; }
 
 public: // iterators
     iterator beginY() const;
@@ -83,7 +85,8 @@ private:
     YUVImage(const YUVImage&);
     YUVImage& operator=(const YUVImage&);
 
-private:
+public:
+//private:
     ImageFormat             m_format;
     int                     m_width;
     int                     m_height;
@@ -101,9 +104,7 @@ private:
     int                     m_uStep;    // for iterator
     int                     m_vStep;    // for iterator
     bool                    m_dataOwner;
-
-    // for binarization
-    Matrix<unsigned char>   m_binarize;
+    Matrix<unsigned char>   m_binaryMask;   // 0 or 255
     Matrix<int>             m_integral;
 };
 

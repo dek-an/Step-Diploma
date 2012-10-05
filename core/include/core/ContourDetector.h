@@ -4,23 +4,27 @@
 namespace core
 {
 
+template <typename T = float> class Matrix;
 class YUVImage;
 
 class ContourDetector
 {
+    static const float kSmallAreaKoef;
+
 public:
     typedef bool (*BinarizationFunction)(unsigned char y, unsigned char u, unsigned char v);
 
 public:
     ContourDetector(BinarizationFunction binFunc);
-    ~ContourDetector();
+    ~ContourDetector(void);
 
 public:
-    void detect(YUVImage* image);
+    void detect(YUVImage& image);
 
 private:
     void setSize(int width, int height);
-    void reset();
+    void reset(void);
+    void detourContour(const Matrix<unsigned char>& mask);
 
 private:
     ContourDetector(const ContourDetector&);

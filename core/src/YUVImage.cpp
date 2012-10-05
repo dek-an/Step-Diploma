@@ -98,7 +98,7 @@ YUVImage::YUVImage(ImageFormat format, int width, int height, const unsigned cha
     , m_uStep(1)
     , m_vStep(1)
     , m_dataOwner(false)
-    , m_binarize(height, width)
+    , m_binaryMask(height, width)
     , m_integral(height, width)
 {
     applyFormat();
@@ -148,10 +148,10 @@ const unsigned char* YUVImage::data() const
 }
 
 
-YUVImage* YUVImage::doBinarizeImage(BinarizationFunction binFunc)
+void YUVImage::doBinaryMask(BinarizationFunction binFunc)
 {
-    const int binDataSize = m_width *m_height;
-    unsigned char* binData = new unsigned char[binDataSize];
+    //const int binDataSize = m_width *m_height;
+    //unsigned char* binData = new unsigned char[binDataSize];
 
     const YUVImageIterator yBegin = beginY();
     const YUVImageIterator yEnd = endY();
@@ -159,47 +159,47 @@ YUVImage* YUVImage::doBinarizeImage(BinarizationFunction binFunc)
     const YUVImageIterator uEnd = endU();
     const YUVImageIterator vBegin = beginV();
     const YUVImageIterator vEnd = endV();
-    const unsigned char* maskBegin = binData;
-    const unsigned char* maskEnd = maskBegin + binDataSize;
+    //const unsigned char* maskBegin = binData;
+    //const unsigned char* maskEnd = maskBegin + binDataSize;
 
     YUVImageIterator yIt = yBegin;
     YUVImageIterator uIt = uBegin;
     YUVImageIterator vIt = vBegin;
-    unsigned char* maskIt = binData;
+    //unsigned char* maskIt = binData;
 
     int i = 0;
     int j = 0;
-    for (; yIt != yEnd && uIt != uEnd && vIt != vEnd && maskIt != maskEnd; ++yIt, ++uIt, ++vIt, ++maskIt)
+    for (; yIt != yEnd && uIt != uEnd && vIt != vEnd /*&& maskIt != maskEnd*/; ++yIt, ++uIt, ++vIt/*, ++maskIt*/)
     {
         unsigned char val = 0;
         if ( binFunc(*yIt, *uIt, *vIt) )
             val = 255;
-        *maskIt = val;
+        //*maskIt = val;
 
-        int integralVal = val % 254;
+        m_binaryMask(i, j) = val;
 
-        m_binarize(i, j) = integralVal;
+        val %= 254;
 
         if (!i && j)
-            integralVal += m_integral(i, j - 1);
+            val += m_integral(i, j - 1);
         else if (i && !j)
-            integralVal += m_integral(i - 1, j);
+            val += m_integral(i - 1, j);
         else if (i && j)
-            integralVal += m_integral(i, j - 1) + m_integral(i - 1, j) - m_integral(i - 1, j - 1);
-        m_integral(i, j) = integralVal;
+            val += m_integral(i, j - 1) + m_integral(i - 1, j) - m_integral(i - 1, j - 1);
+        m_integral(i, j) = val;
 
         ++j %= m_width;
         if (!j)
             ++i;
     }
 
-    YUVImage* res = new YUVImage(GRAY, m_width, m_height, binData);
-    res->m_dataOwner = true;
+    //YUVImage* res = new YUVImage(GRAY, m_width, m_height, binData);
+    //res->m_dataOwner = true;
 
-    return res;
+    //return res;
 }
 
-void YUVImage::smoothBinarizeImage(int radius)
+void YUVImage::smoothBinaryMask(int radius/* = 1*/)
 {
     int q = 1;
     const int b1 = 2;  // error on the first layer; edit
@@ -208,8 +208,8 @@ void YUVImage::smoothBinarizeImage(int radius)
     const int error = b1 * (q - 1); // sum of the geometric progression
     const int kThreshold = (radius + 2) * (radius + 2) - 1 - error;
 
-    const int rows = m_binarize.rows();
-    const int cols = m_binarize.cols();
+    const int rows = m_binaryMask.rows();
+    const int cols = m_binaryMask.cols();
 
     for (int i = 0; i < rows; ++i)
         for (int j = 0; j < cols; ++j)
@@ -223,11 +223,11 @@ void YUVImage::smoothBinarizeImage(int radius)
             const int integralVal = m_integral(i2, j2) - m_integral(i1, j2)
                 - m_integral(i2, j1) + m_integral(i1, j1);
 
-            const int currentVal = m_binarize(i, j);
+            const int currentVal = m_binaryMask(i, j);
             if (currentVal && integralVal < error)
-                m_binarize(i, j) = 0;
+                m_binaryMask(i, j) = 0;
             else if (!currentVal && integralVal >= kThreshold)
-                m_binarize(i, j) = 1;
+                m_binaryMask(i, j) = 255;
         }
 }
 

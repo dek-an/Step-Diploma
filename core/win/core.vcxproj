@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\core\ContourDetector.h" />
     <ClInclude Include="..\include\core\geometry\Matrix.h" />
+    <ClInclude Include="..\include\core\geometry\Vector2D.h" />
     <ClInclude Include="..\include\core\geometry\Vector3D.h" />
     <ClInclude Include="..\include\core\gestures\Gesture.h" />
     <ClInclude Include="..\include\core\gestures\GestureDetector.h" />

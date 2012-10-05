@@ -94,10 +94,18 @@ void Application::captureCamera(void)
             data[i] = (unsigned char)frameYUV->imageData[i];
 
         YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
-        YUVImage* grayImg = img.doBinarizeImage(GestureRecognitor::skinBinarizationFunction);
-        //for (int i = 0; i < size / 3; ++i)
-        //    frameGRAY->imageData[i] = grayImg->data()[i];
-        //delete grayImg;
+        img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
+        img.smoothBinaryMask();
+        for (int i = 0; i < height; ++i)
+            //frameGRAY->imageData[i] = grayImg->data()[i];
+            for (int j = 0; j < width; ++j)
+            {
+                if (img.m_binaryMask(i, j))
+                    frameGRAY->imageData[i * width + j] = 255;
+                else
+                    frameGRAY->imageData[i * width + j] = 0;
+            }
+//        delete grayImg;
 
         if (frameRGB)
             cvShowImage("CamWnd", frameGRAY);
