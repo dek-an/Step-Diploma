@@ -69,6 +69,7 @@ public:
     void smoothBinaryMask(int radius = 1);
     inline const Matrix<unsigned char>& getBinaryMask(void) const { return m_binaryMask; }
     inline const Matrix<int>& getIntegralMask(void) const { return m_integral; }
+    inline int getMaskBorder() const { return m_maskBorder; }
 
 public: // iterators
     iterator beginY() const;
@@ -104,8 +105,11 @@ public:
     int                     m_uStep;    // for iterator
     int                     m_vStep;    // for iterator
     bool                    m_dataOwner;
-    Matrix<unsigned char>   m_binaryMask;   // 0 or 255
+    // 0 or 255
+    // binary mask with clean borders (zero values on the borders)
+    Matrix<unsigned char>   m_binaryMask;
     Matrix<int>             m_integral;
+    int                     m_maskBorder;
 };
 
 typedef YUVImage::iterator YUVImageIterator;

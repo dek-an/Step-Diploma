@@ -95,7 +95,7 @@ void Application::captureCamera(void)
 
         YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
         img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
-        img.smoothBinaryMask();
+        //img.smoothBinaryMask();
         for (int i = 0; i < height; ++i)
             //frameGRAY->imageData[i] = grayImg->data()[i];
             for (int j = 0; j < width; ++j)

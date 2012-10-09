@@ -43,7 +43,7 @@ private:
 // ----------------------------------------------------------------------------
 
 template <typename T>
-inline Vector2D<T>::Vector2D<T>()
+inline Vector2D<T>::Vector2D()
 {
     m_data[0] = m_data[1] = 0;
 }

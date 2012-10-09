@@ -98,8 +98,10 @@ YUVImage::YUVImage(ImageFormat format, int width, int height, const unsigned cha
     , m_uStep(1)
     , m_vStep(1)
     , m_dataOwner(false)
+
     , m_binaryMask(height, width)
     , m_integral(height, width)
+    , m_maskBorder(5)
 {
     applyFormat();
 }
@@ -138,6 +140,8 @@ unsigned char YUVImage::operator()(char comp, int row, int col) const
     case 'V':
         return *(beginV() + row * m_width + col);
         break;
+    default:
+        return 0;
     }
 }
 
@@ -172,11 +176,15 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
     for (; yIt != yEnd && uIt != uEnd && vIt != vEnd /*&& maskIt != maskEnd*/; ++yIt, ++uIt, ++vIt/*, ++maskIt*/)
     {
         unsigned char val = 0;
-        if ( binFunc(*yIt, *uIt, *vIt) )
-            val = 255;
-        //*maskIt = val;
 
-        m_binaryMask(i, j) = val;
+        if (i - m_maskBorder >= 0 && j - m_maskBorder >= 0) // if not borders (if borders, val = 0; clean borders)
+        {
+            if ( binFunc(*yIt, *uIt, *vIt) )
+                val = 255;
+            //*maskIt = val;
+        }
+
+        m_binaryMask.set(i, j, val);
 
         val %= 254;
 
@@ -186,7 +194,7 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
             val += m_integral(i - 1, j);
         else if (i && j)
             val += m_integral(i, j - 1) + m_integral(i - 1, j) - m_integral(i - 1, j - 1);
-        m_integral(i, j) = val;
+        m_integral.set(i, j, val);
 
         ++j %= m_width;
         if (!j)
@@ -225,9 +233,9 @@ void YUVImage::smoothBinaryMask(int radius/* = 1*/)
 
             const int currentVal = m_binaryMask(i, j);
             if (currentVal && integralVal < error)
-                m_binaryMask(i, j) = 0;
+                m_binaryMask.set(i, j, 0);
             else if (!currentVal && integralVal >= kThreshold)
-                m_binaryMask(i, j) = 255;
+                m_binaryMask.set(i, j, 255);
         }
 }
 
