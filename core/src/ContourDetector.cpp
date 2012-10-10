@@ -9,6 +9,140 @@
 namespace core
 {
 
+class ContourDetector::Pixel
+{
+
+////////////////////////////////////////////////////////////////
+//
+// Direction && Normal:
+//     7  0  1
+//     6  X  2
+//     5  4  3
+//
+////////////////////////////////////////////////////////////////
+
+static const int indI[8];
+static const int indJ[8];
+
+public:
+    Pixel(int i, int j);
+
+public:
+    bool moveTo(int i, int j);
+    bool moveToCurrentAround();
+    void operator++();
+    Pixel operator++(int);
+    bool operator==(const Pixel& px) const;
+    bool operator!=(const Pixel& px) const;
+    operator Vector2D<int>() const;
+    Vector2D<int> currentAround() const;
+
+    inline int nextI() const { return m_iA; }
+    inline int nextJ() const { return m_jA; }
+
+private:
+    void determineAroundStart(int i, int j);
+
+private:
+    // current indexes
+    int m_i;
+    int m_j;
+    // around indexes
+    int m_iA;
+    int m_jA;
+    int m_normal;
+};
+
+// ---------------------------------------------------------------------
+
+const int ContourDetector::Pixel::indI[8] = { -1, -1, 0, 1, 1, 1, 0, -1};
+const int ContourDetector::Pixel::indJ[8] = { 0, 1, 1, 1, 0, -1, -1, -1};
+
+ContourDetector::Pixel::Pixel(int i, int j)
+    : m_i(i)
+    , m_j(j)
+    // by default direction is right and normal is up
+    , m_iA(i - 1)
+    , m_jA(j)
+    , m_normal(0)
+{}
+
+bool ContourDetector::Pixel::moveTo(int i, int j)
+{
+    if (i == m_i && j == m_j)
+        return false;
+
+    determineAroundStart(i, j);
+    m_i = i;
+    m_j = j;
+
+    return true;
+}
+
+bool ContourDetector::Pixel::moveToCurrentAround()
+{
+    return moveTo(m_iA, m_jA);
+}
+
+void ContourDetector::Pixel::operator++()
+{
+    ++m_normal %= 8;
+    m_iA = m_i + indI[m_normal];
+    m_jA = m_j + indJ[m_normal];
+}
+
+ContourDetector::Pixel ContourDetector::Pixel::operator++(int)
+{
+    Pixel p(*this);
+    ++(*this);
+    return p;
+}
+
+bool ContourDetector::Pixel::operator==(const Pixel& px) const
+{
+    return (px.m_i == m_i && px.m_j == m_j);
+}
+
+bool ContourDetector::Pixel::operator!=(const Pixel& px) const
+{
+    return !(px == *this);
+}
+
+ContourDetector::Pixel::operator Vector2D<int>() const
+{
+    return Vector2D<int>(m_i, m_j);
+}
+
+Vector2D<int> ContourDetector::Pixel::currentAround() const
+{
+    return Vector2D<int>(m_iA, m_jA);
+}
+
+void ContourDetector::Pixel::determineAroundStart(int i, int j)
+{
+    int direction = 0;
+
+    int iR = i - m_i;
+    int jR = j - m_j;
+
+    if (iR > 0)
+        direction = 4 - jR;
+    else if (iR < 0)
+        direction = (8 + jR) % 8;
+    else
+        direction = 4 - 2 * jR;
+
+    m_normal = direction - 2;
+
+    // for start around point
+    m_iA = i + indI[m_normal];
+    m_jA = j + indJ[m_normal];
+}
+
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+
 const float kSmallAreaKoef = 10.0f;
 
 ContourDetector::ContourDetector(BinarizationFunction binFunc)
@@ -168,15 +302,15 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, int maskB
     const int iEnd = mask.rows() - maskBorder;
     const int jEnd = mask.cols() - maskBorder;
 
-    int ii = m_iStart;
-    int jj = m_jStart;
+    const Pixel start(m_iStart, m_jStart);
+    Pixel px(m_iStart, m_jStart);
 
     do
     {
-        m_contour.push_back(Vector2D<int>(ii, jj));
-
-
-    } while (ii != m_iStart && jj != m_jStart);
+        m_contour.push_back(px);
+        for (; !mask(px.currentAround()); ++px);
+        px.moveToCurrentAround();
+    } while ( px != start );
 }
 
 } // namespace core

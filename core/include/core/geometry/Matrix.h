@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "Vector2D.h"
 
 namespace core
 {
@@ -23,6 +24,7 @@ public:
 
 public:
     T operator()(int row, int col) const;
+    T operator()(Vector2D<int> pos) const;
     void set(int row, int col, T val);
 
 private:
@@ -83,6 +85,12 @@ template <typename T>
 T Matrix<T>::operator()(int row, int col) const
 {
     return *(m_data + row * m_cols + col);
+}
+
+template <typename T>
+T Matrix<T>::operator()(Vector2D<int> pos) const
+{
+    return this->operator()(pos.x(), pos.y());
 }
 
 template <typename T>

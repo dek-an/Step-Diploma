@@ -46,6 +46,8 @@ private:
     bool                    m_contourFounded;
     int                     m_maskBorder;
     ContourContainer        m_contour;
+
+    class Pixel;
 };
 
 } // namespace core
