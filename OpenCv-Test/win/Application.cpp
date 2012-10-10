@@ -4,9 +4,10 @@
 #include <cv.h>
 
 #include <core/YUVImage.h>
-using core::YUVImage;
 #include <core/gestures/GestureRecognitor.h>
-using core::GestureRecognitor;
+#include <core/ContourDetector.h>
+
+using namespace core;
 
 Application::Application(void)
 {
@@ -65,6 +66,8 @@ void Application::captureCamera(void)
     IplImage* frameGRAY = 0;
     unsigned char* data = 0;
 
+    ContourDetector cd(GestureRecognitor::skinBinarizationFunction);
+
     while (true)
     {
         static float sum = 0.f;
@@ -94,18 +97,23 @@ void Application::captureCamera(void)
             data[i] = (unsigned char)frameYUV->imageData[i];
 
         YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
-        img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
+        
+        cd.detect(img);
+        //img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
         //img.smoothBinaryMask();
         for (int i = 0; i < height; ++i)
             //frameGRAY->imageData[i] = grayImg->data()[i];
             for (int j = 0; j < width; ++j)
-            {
-                if (img.m_binaryMask(i, j))
-                    frameGRAY->imageData[i * width + j] = 255;
-                else
-                    frameGRAY->imageData[i * width + j] = 0;
-            }
+                frameGRAY->imageData[i * width + j] = 0;//img.m_binaryMask(i, j);
 //        delete grayImg;
+
+        typedef ContourDetector::ContourContainer Contour;
+        Contour cont = cd.getContour();
+        Contour::const_iterator begin = cont.begin();
+        Contour::const_iterator end = cont.end();
+        int kk = 0;
+        for (Contour::const_iterator it = begin; it != end; ++it, ++kk)
+            frameGRAY->imageData[it->x() * width + it->y()] = 255;
 
         if (frameRGB)
             cvShowImage("CamWnd", frameGRAY);

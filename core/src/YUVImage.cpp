@@ -80,7 +80,7 @@ void YUVImage::iterator::movePtr()
 // ------------------------ YUVImage ------------------------
 // ----------------------------------------------------------
 
-YUVImage::YUVImage(ImageFormat format, int width, int height, const unsigned char* data)
+YUVImage::YUVImage(ImageFormat format, int width, int height, const unsigned char* data/* = 0*/)
     : m_format(format)
     , m_width(width)
     , m_height(height)
@@ -175,9 +175,10 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
     int j = 0;
     for (; yIt != yEnd && uIt != uEnd && vIt != vEnd /*&& maskIt != maskEnd*/; ++yIt, ++uIt, ++vIt/*, ++maskIt*/)
     {
-        unsigned char val = 0;
+        int val = 0;
 
-        if (i - m_maskBorder >= 0 && j - m_maskBorder >= 0) // if not borders (if borders, val = 0; clean borders)
+        if (i - m_maskBorder >= 0 && j - m_maskBorder >= 0 &&
+            i + m_maskBorder < m_height && j + m_maskBorder < m_width) // if not borders (if borders, val = 0; clean borders)
         {
             if ( binFunc(*yIt, *uIt, *vIt) )
                 val = 255;
@@ -277,6 +278,8 @@ void YUVImage::applyFormat()
     {
     case GRAY:
         m_dataSize /= 3; // = m_width * m_height;
+        if (!m_uData)
+            m_uData = new unsigned char[m_dataSize];
 
         m_uData = m_yData;
         m_vData = m_yData;
@@ -288,6 +291,9 @@ void YUVImage::applyFormat()
         break;
     case YUV:
         //m_dataSize = 3 * width * height;
+
+        if (!m_uData)
+            m_uData = new unsigned char[m_dataSize];
 
         m_uData = m_yData + 1;
         m_vData = m_uData + 1;
@@ -307,6 +313,9 @@ void YUVImage::applyFormat()
         break;
     case YUV420SP:
         m_dataSize >>= 1;   // = (3 * m_width * m_height) >> 1;
+
+        if (!m_uData)
+            m_uData = new unsigned char[m_dataSize];
 
         const int imgSize = m_width * m_height;
         const int imgSizeDiv4 = imgSize >> 2;

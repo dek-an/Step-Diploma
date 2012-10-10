@@ -37,8 +37,10 @@ public:
     operator Vector2D<int>() const;
     Vector2D<int> currentAround() const;
 
-    inline int nextI() const { return m_iA; }
-    inline int nextJ() const { return m_jA; }
+    inline int iCurrent() const { return m_i; }
+    inline int jCurrent() const { return m_j; }
+    inline int iAround() const { return m_iA; }
+    inline int jAround() const { return m_jA; }
 
 private:
     void determineAroundStart(int i, int j);
@@ -132,7 +134,7 @@ void ContourDetector::Pixel::determineAroundStart(int i, int j)
     else
         direction = 4 - 2 * jR;
 
-    m_normal = direction - 2;
+    m_normal = (8 + direction - 2) % 8;
 
     // for start around point
     m_iA = i + indI[m_normal];
@@ -150,9 +152,15 @@ ContourDetector::ContourDetector(BinarizationFunction binFunc)
     , m_width(0)
     , m_height(0)
     , m_imageArea(0)
+    , m_activeArea(0)
     , m_iStart(0)
     , m_jStart(0)
     , m_contourFounded(false)
+    , m_maskBorder(0)
+    , m_iBegin(0)
+    , m_jBegin(0)
+    , m_iEnd(0)
+    , m_jEnd(0)
 {
 }
 
@@ -164,28 +172,37 @@ ContourDetector::~ContourDetector(void)
 void ContourDetector::detect(YUVImage& image)
 {
     reset();
-    setSize(image.width(), image.height());
+    setValues(image);
 
     image.doBinaryMask(m_binFunc);
     const Matrix<unsigned char>& mask = image.getBinaryMask();
     const Matrix<int>& integral = image.getIntegralMask();
 
-    const int detectedArea = integral(m_width - 1, m_height - 1);
-    if (detectedArea * kSmallAreaKoef < m_imageArea)
+    int detectedArea = integral(m_height - 1, m_width - 1);
+    int border = image.getMaskBorder();
+    if (detectedArea * kSmallAreaKoef < m_activeArea)
         return;
 
     findContour(mask, integral, image.getMaskBorder());
 }
 
 
-void ContourDetector::setSize(int width, int height)
+void ContourDetector::setValues(const YUVImage& image)
 {
-    if ( width != m_width || height != m_height )
+    int maskBorder = image.getMaskBorder();
+    int width = image.width();
+    int height = image.height();
+
+    if ( width != m_width || height != m_height || m_maskBorder != maskBorder)
     {
         m_width = width;
         m_height = height;
         m_imageArea = width * height;
+        int borderArea = 2 * maskBorder * (width + height - 2 * maskBorder);
+        m_activeArea = m_imageArea - borderArea;
     }
+
+
 }
 
 void ContourDetector::reset(void)
@@ -193,6 +210,7 @@ void ContourDetector::reset(void)
     m_iStart = 0;
     m_jStart = 0;
     m_contourFounded = false;
+    m_contour.clear();
 }
 
 void ContourDetector::findContour(const Matrix<unsigned char>& mask, const Matrix<int>& integral, int maskBorder)
@@ -296,14 +314,13 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
 
 void ContourDetector::detourContour(const Matrix<unsigned char>& mask, int maskBorder)
 {
-    // i - rows; j - cols
+    const Pixel start(m_iStart, m_jStart);
+    Pixel px(m_iStart, m_jStart);
+
     const int iBegin = maskBorder;
     const int jBegin = maskBorder;
     const int iEnd = mask.rows() - maskBorder;
     const int jEnd = mask.cols() - maskBorder;
-
-    const Pixel start(m_iStart, m_jStart);
-    Pixel px(m_iStart, m_jStart);
 
     do
     {

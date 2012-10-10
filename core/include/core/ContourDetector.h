@@ -24,9 +24,10 @@ public:
 
 public:
     void detect(YUVImage& image);
+    inline const ContourContainer& getContour() { return m_contour; }
 
 private:
-    void setSize(int width, int height);
+    void setValues(const YUVImage& image);
     void reset(void);
     void findContour(const Matrix<unsigned char>& mask, const Matrix<int>& integral, int maskBorder);
     bool findStartPoint(const Matrix<unsigned char>& mask, const Matrix<int>& integral, int maskBorder);
@@ -41,10 +42,15 @@ private:
     int                     m_width;
     int                     m_height;
     int                     m_imageArea;
+    int                     m_activeArea;
     int                     m_iStart;
     int                     m_jStart;
     bool                    m_contourFounded;
     int                     m_maskBorder;
+    int                     m_iBegin;
+    int                     m_jBegin;
+    int                     m_iEnd;
+    int                     m_jEnd;
     ContourContainer        m_contour;
 
     class Pixel;

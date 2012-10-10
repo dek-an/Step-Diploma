@@ -53,7 +53,7 @@ public:
     };
 
 public:
-    YUVImage(ImageFormat format, int width, int height, const unsigned char* data);
+    YUVImage(ImageFormat format, int width, int height, const unsigned char* data = 0);
     ~YUVImage();
 
 public:
@@ -69,6 +69,7 @@ public:
     void smoothBinaryMask(int radius = 1);
     inline const Matrix<unsigned char>& getBinaryMask(void) const { return m_binaryMask; }
     inline const Matrix<int>& getIntegralMask(void) const { return m_integral; }
+    inline void setMaskBorder(int border) { m_maskBorder = border; }
     inline int getMaskBorder() const { return m_maskBorder; }
 
 public: // iterators

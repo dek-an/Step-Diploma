@@ -8,28 +8,28 @@ template <typename T = float>
 class Vector2D
 {
 public:
-    inline Vector2D();
-    inline Vector2D(T x, T y);
-    inline Vector2D(const T* data);
-    inline Vector2D(const Vector2D& v);
+    inline Vector2D<T>();
+    inline Vector2D<T>(T x, T y);
+    inline Vector2D<T>(const T* data);
+    inline Vector2D<T>(const Vector2D<T>& v);
 
 public:
     inline T x() const;
     inline T y() const;
 
-    Vector2D& operator=(const Vector2D& v);
+    Vector2D& operator=(const Vector2D<T>& v);
 
-    inline Vector2D&    operator+=(const Vector2D& v);
-    inline Vector2D&    operator-=(const Vector2D& v);
-    inline Vector2D&    operator*=(T d);
-    inline Vector2D&    operator/=(T d);
+    inline Vector2D<T>&    operator+=(const Vector2D& v);
+    inline Vector2D<T>&    operator-=(const Vector2D& v);
+    inline Vector2D<T>&    operator*=(T d);
+    inline Vector2D<T>&    operator/=(T d);
 
-    friend inline Vector2D  operator+(const Vector2D& v1, const Vector2D& v2);
-    friend inline Vector2D  operator-(const Vector2D& v1, const Vector2D& v2);
-    friend inline Vector2D  operator/(const Vector2D& v, T d);
-    friend inline Vector2D  operator*(const Vector2D& v, T d);
-    friend inline Vector2D  operator*(T d, const Vector2D& v2);
-    friend inline T     operator*(const Vector2D& v1, const Vector2D& v2);
+    friend inline Vector2D<T>  operator+(const Vector2D<T>& v1, const Vector2D<T>& v2);
+    friend inline Vector2D<T>  operator-(const Vector2D<T>& v1, const Vector2D<T>& v2);
+    friend inline Vector2D<T>  operator/(const Vector2D<T>& v, T d);
+    friend inline Vector2D<T>  operator*(const Vector2D<T>& v, T d);
+    friend inline Vector2D<T>  operator*(T d, const Vector2D<T>& v2);
+    friend inline T     operator*(const Vector2D<T>& v1, const Vector2D<T>& v2);
 
 private:
     void swap(Vector2D& v);
@@ -151,6 +151,24 @@ template <typename T>
 inline float operator*(const Vector2D<T>& v1, const Vector2D<T>& v2)
 {
     return v1.m_data[0] * v2.m_data[0] + v1.m_data[1] * v2.m_data[1];
+}
+
+// ------------------------------------------------------
+
+template <typename T>
+Vector2D<T>& Vector2D<T>::operator=(const Vector2D<T>& v)
+{
+    if (&v != this)
+        Vector2D(v).swap(*this);
+    return *this;
+}
+
+template <typename T>
+void Vector2D<T>::swap(Vector2D<T>& v)
+{
+    float x = m_data[0]; float y = m_data[1];
+    m_data[0] = v.m_data[0]; m_data[1] = v.m_data[1];
+    v.m_data[0] = x; v.m_data[1] = y;
 }
 
 } // namespace core
