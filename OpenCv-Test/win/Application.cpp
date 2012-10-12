@@ -97,7 +97,7 @@ void Application::captureCamera(void)
             data[i] = (unsigned char)frameYUV->imageData[i];
 
         YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
-        
+
         cd.detect(img);
         //img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
         //img.smoothBinaryMask();

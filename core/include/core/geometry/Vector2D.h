@@ -24,12 +24,17 @@ public:
     inline Vector2D<T>&    operator*=(T d);
     inline Vector2D<T>&    operator/=(T d);
 
-    friend inline Vector2D<T>  operator+(const Vector2D<T>& v1, const Vector2D<T>& v2);
-    friend inline Vector2D<T>  operator-(const Vector2D<T>& v1, const Vector2D<T>& v2);
-    friend inline Vector2D<T>  operator/(const Vector2D<T>& v, T d);
-    friend inline Vector2D<T>  operator*(const Vector2D<T>& v, T d);
-    friend inline Vector2D<T>  operator*(T d, const Vector2D<T>& v2);
-    friend inline T     operator*(const Vector2D<T>& v1, const Vector2D<T>& v2);
+    friend inline Vector2D<T>   operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
+    {
+        Vector2D<T> res(v1);
+        res += v2;
+        return res;
+    }
+    friend inline Vector2D<T>   operator-(const Vector2D<T>& v1, const Vector2D<T>& v2);
+    friend inline Vector2D<T>   operator/(const Vector2D<T>& v, T d);
+    friend inline Vector2D<T>   operator*(const Vector2D<T>& v, T d);
+    friend inline Vector2D<T>   operator*(T d, const Vector2D<T>& v2);
+    friend inline T             operator*(const Vector2D<T>& v1, const Vector2D<T>& v2);
 
 private:
     void swap(Vector2D& v);
@@ -109,13 +114,13 @@ inline Vector2D<T>& Vector2D<T>::operator*=(T d)
 }
 
 
-template <typename T>
-inline Vector2D<T> operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
-{
-    Vector2D<T> res(v1);
-    res += v2;
-    return res;
-}
+//template <typename T>
+//inline Vector2D<T> operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
+//{
+//    Vector2D<T> res(v1);
+//    res += v2;
+//    return res;
+//}
 
 template <typename T>
 inline Vector2D<T> operator-(const Vector2D<T>& v1, const Vector2D<T>& v2)

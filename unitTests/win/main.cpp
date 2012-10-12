@@ -1,5 +1,6 @@
 #include <core/YUVImage.h>
 #include <core/ContourDetector.h>
+#include "core/../../src/ContourDetector.cpp"
 #include <iostream>
 
 using namespace std;
@@ -16,14 +17,20 @@ unsigned char* data = 0;
 
 void YUVImageTest();
 void YUVImageBinaryIntegralTest();
-void ContourDetectorTest();
+void SimpleContourDetectorTest();
+void BordersContourDetectorTest();
+void PixelTest();
 
 void main()
 {
     //YUVImageTest();
     //YUVImageBinaryIntegralTest();
-    ContourDetectorTest();
+    //SimpleContourDetectorTest();
+    BordersContourDetectorTest();
+    //PixelTest();
 }
+
+
 
 bool simpleBin(unsigned char y, unsigned char, unsigned char)
 {
@@ -121,7 +128,7 @@ void YUVImageBinaryIntegralTest()
     delete[] data;
 }
 
-void ContourDetectorTest()
+void SimpleContourDetectorTest()
 {
     int width = 10;
     int height = 10;
@@ -160,4 +167,138 @@ void ContourDetectorTest()
     print(data, width, height);
 
     delete[] data;
+}
+
+void BordersContourDetectorTest()
+{
+    int width = 15;
+    int height = 15;
+    YUVImage::ImageFormat format = YUVImage::GRAY;
+    int dataSize = 3 * width * height;
+    switch (format)
+    {
+    case YUVImage::YUV:
+        //dataSize = 3 * width * height;
+        break;
+    case YUVImage::YUV420SP:
+        dataSize >>= 1;
+        break;
+    case YUVImage::GRAY:
+        dataSize /= 3;
+        break;
+    }
+
+    // dataSize = 225 (15x15)
+    unsigned char data1[225] =
+    {
+        2, 2,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2,
+        2, 2,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2,
+
+        2, 2,   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,   2, 2,
+        2, 2,   1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0,   2, 2,
+        2, 2,   1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0,   2, 2,
+        2, 2,   1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0,   2, 2,
+        2, 2,   1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+
+        2, 2,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2,
+        2, 2,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2
+    };
+
+    print(data1, width, height);
+
+    YUVImage img(format, width, height, data1);
+    img.setMaskBorder(2);
+
+    ContourDetector cd(simpleBin);
+    cd.detect(img);
+
+    unsigned char outData[255];
+    for (int i = 0; i < 255; ++i)
+        outData[i] = 0;
+
+    typedef ContourDetector::ContourContainer Contour;
+    Contour cont = cd.getContour();
+    Contour::const_iterator begin = cont.begin();
+    Contour::const_iterator end = cont.end();
+    for (Contour::const_iterator it = begin; it != end; ++it)
+        *(outData + it->x() * width + it->y()) = 2;
+
+    print(outData, 15, 15);
+}
+
+void PixelTest()
+{
+    int i = 5;
+    int j = 5;
+
+    typedef ContourDetector::Pixel Pixel;
+    Pixel p(i, j);
+    printf("i = %i   j = %i\n\n", i, j);
+
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (right)\n\n", 5, 6);
+    p.moveTo(5, 6);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (left)\n\n", 5, 5);
+    p.moveTo(5, 5);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (down)\n\n", 6, 5);
+    p.moveTo(6, 5);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (up)\n\n", 5, 5);
+    p.moveTo(5, 5);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (u-l)\n\n", 4, 4);
+    p.moveTo(4, 4);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (d-r)\n\n", 5, 5);
+    p.moveTo(5, 5);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (u-r)\n\n", 4, 6);
+    p.moveTo(4, 6);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+
+    printf("\nMOVING to i = %i, j = %i (d-l)\n\n", 5, 5);
+    p.moveTo(5, 5);
+    printf("i = %i   j = %i\n", p.iCurrent(), p.jCurrent());
+    for (int i = 0; i < 8; ++i, ++p)
+        printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
+    printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
 }

@@ -26,24 +26,34 @@ static const int indJ[8];
 
 public:
     Pixel(int i, int j);
+    Pixel();
 
 public:
     bool moveTo(int i, int j);
     bool moveToCurrentAround();
+    Vector2D<int> currentAround() const;
+
     void operator++();
     Pixel operator++(int);
+    Pixel operator+=(const Vector2D<int>& v);
     bool operator==(const Pixel& px) const;
     bool operator!=(const Pixel& px) const;
     operator Vector2D<int>() const;
-    Vector2D<int> currentAround() const;
+    Pixel& operator=(const Pixel& p);
 
     inline int iCurrent() const { return m_i; }
     inline int jCurrent() const { return m_j; }
+    inline int iPrev() const { return m_iPrev; }
+    inline int jPrev() const { return m_jPrev; }
+    inline int iShift() const { return m_iShift; }
+    inline int jShift() const { return m_jShift; }
     inline int iAround() const { return m_iA; }
     inline int jAround() const { return m_jA; }
 
 private:
     void determineAroundStart(int i, int j);
+
+    void swap(Pixel& p);
 
 private:
     // current indexes
@@ -52,6 +62,12 @@ private:
     // around indexes
     int m_iA;
     int m_jA;
+    // previous indexes
+    int m_iPrev;
+    int m_jPrev;
+    // shift relatively previous position
+    int m_iShift;
+    int m_jShift;
     int m_normal;
 };
 
@@ -66,6 +82,10 @@ ContourDetector::Pixel::Pixel(int i, int j)
     // by default direction is right and normal is up
     , m_iA(i - 1)
     , m_jA(j)
+    , m_iPrev(i)
+    , m_jPrev(j - 1)
+    , m_iShift(0)
+    , m_jShift(1)
     , m_normal(0)
 {}
 
@@ -75,6 +95,8 @@ bool ContourDetector::Pixel::moveTo(int i, int j)
         return false;
 
     determineAroundStart(i, j);
+    m_iPrev = m_i;
+    m_jPrev = m_j;
     m_i = i;
     m_j = j;
 
@@ -100,6 +122,12 @@ ContourDetector::Pixel ContourDetector::Pixel::operator++(int)
     return p;
 }
 
+ContourDetector::Pixel ContourDetector::Pixel::operator+=(const Vector2D<int>& v)
+{
+    moveTo(v.x(), v.y());
+    return *this;
+}
+
 bool ContourDetector::Pixel::operator==(const Pixel& px) const
 {
     return (px.m_i == m_i && px.m_j == m_j);
@@ -115,6 +143,13 @@ ContourDetector::Pixel::operator Vector2D<int>() const
     return Vector2D<int>(m_i, m_j);
 }
 
+ContourDetector::Pixel& ContourDetector::Pixel::operator=(const Pixel& p)
+{
+    if (&p != this)
+        Pixel(p).swap(*this);
+    return *this;
+}
+
 Vector2D<int> ContourDetector::Pixel::currentAround() const
 {
     return Vector2D<int>(m_iA, m_jA);
@@ -125,7 +160,11 @@ void ContourDetector::Pixel::determineAroundStart(int i, int j)
     int direction = 0;
 
     int iR = i - m_i;
+    if (iR)
+        iR = iR < 0 ? -1 : 1;
     int jR = j - m_j;
+    if (jR)
+        jR = jR < 0 ? -1 : 1;
 
     if (iR > 0)
         direction = 4 - jR;
@@ -139,6 +178,38 @@ void ContourDetector::Pixel::determineAroundStart(int i, int j)
     // for start around point
     m_iA = i + indI[m_normal];
     m_jA = j + indJ[m_normal];
+
+    // shift
+    m_iShift = iR;
+    m_jShift = jR;
+}
+
+//ContourDetector::Pixel ContourDetector::Pixel::operator+(const Pixel& p)
+//{
+//    Pixel res(*this);
+//    res += p;
+//    return res;
+//}
+
+void ContourDetector::Pixel::swap(Pixel& p)
+{
+    int i = m_i; int j = m_j;
+    int iA = m_iA; int jA = m_jA;
+    int iP = m_iPrev; int jP = m_jPrev;
+    int iS = m_iShift; int jS = m_jShift;
+    int n = m_normal;
+
+    this->m_i = p.m_i; this->m_j = p.m_j;
+    this->m_iA = p.m_iA; this->m_jA = p.m_jA;
+    this->m_iPrev = p.m_iPrev; this->m_jPrev = p.m_jPrev;
+    this->m_iShift = p.m_iShift; this->m_jShift = p.m_jShift;
+    this->m_normal;
+
+    p.m_i = i; p.m_j = j;
+    p.m_iA = iA; p.m_jA = jA;
+    p.m_iPrev = iP; p.m_jPrev = jP;
+    p.m_iShift = iS; p.m_jShift = jS;
+    p.m_normal = n;
 }
 
 // ---------------------------------------------------------------------
@@ -201,8 +272,6 @@ void ContourDetector::setValues(const YUVImage& image)
         int borderArea = 2 * maskBorder * (width + height - 2 * maskBorder);
         m_activeArea = m_imageArea - borderArea;
     }
-
-
 }
 
 void ContourDetector::reset(void)
@@ -322,12 +391,76 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, int maskB
     const int iEnd = mask.rows() - maskBorder;
     const int jEnd = mask.cols() - maskBorder;
 
+    // borders on the previous step
+    bool tPrevBorder = false;    // top previous border
+    bool bPrevBorder = false;    // bottom previous border
+    bool lPrevBorder = false;    // left previous border
+    bool rPrevBorder = false;    // right previous border
+
     do
     {
         m_contour.push_back(px);
-        for (; !mask(px.currentAround()); ++px);
-        px.moveToCurrentAround();
+
+        // in case if the set of pixels is on the border
+        // we have to skip it all while such situation
+        int iCurrent = px.iCurrent();
+        int jCurrent = px.jCurrent();
+
+        // current borders
+        bool tCurrBorder = (iBegin == iCurrent);    // current top border
+        bool bCurrBorder = (iEnd - 1 == iCurrent);  // current bottom border
+        bool lCurrBorder = (jBegin == jCurrent);    // current left border
+        bool rCurrBorder = (jEnd - 1 == jCurrent);  // current right border
+
+        // borders (if previous and current are true)
+        bool tBorder = (tCurrBorder && tPrevBorder);  // current top border
+        bool bBorder = (bCurrBorder && bPrevBorder);  // current bottom border
+        bool lBorder = (lCurrBorder && lPrevBorder);  // current left border
+        bool rBorder = (rCurrBorder && rPrevBorder);  // current right border
+
+        bool border = (tBorder || bBorder || lBorder || rBorder);   // any border
+
+        // check corners
+        bool ltCorner = lBorder && tBorder; // left top corner
+        bool rtCorner = rBorder && tBorder; // right top corner
+        bool lbCorner = lBorder && bBorder; // left bottom corner
+        bool rbCorner = rBorder && bBorder; // right bottom corner
+
+        bool corner = ( border && (ltCorner || rtCorner || lbCorner || rbCorner) );   // any corner
+
+        if (!corner && border)
+        {
+            int iInd = iCurrent;
+            int jInd = jCurrent;
+            // because of two pixels means that we moving on the border:
+            int iShift = px.iShift();
+            int jShift = px.jShift();
+
+            while ( mask(px + Vector2D<int>(2 * iShift, 2 * jShift)) )
+            {
+                iInd += iShift;
+                jInd += jShift;
+                px.moveTo(iInd, jInd);
+            }
+
+            tCurrBorder = false;
+            bCurrBorder = false;
+            lCurrBorder = false;
+            rCurrBorder = false;
+        }
+        else
+        {
+            while ( !mask(px.currentAround()) )
+                ++px;
+            px.moveToCurrentAround();
+        }
+
+        tPrevBorder = tCurrBorder;
+        bPrevBorder = bCurrBorder;
+        lPrevBorder = lCurrBorder;
+        rPrevBorder = rCurrBorder;
     } while ( px != start );
+    m_contourFounded = true;
 }
 
 } // namespace core
