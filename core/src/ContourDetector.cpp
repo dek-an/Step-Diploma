@@ -3,8 +3,10 @@
 #include "../include/core/YUVImage.h"
 #include "../include/core/geometry/Matrix.h"
 #include "../include/core/geometry/Vector2D.h"
+#include "../include/core/IntegralImage.h"
 
 #include <memory>
+#include <cassert>
 
 namespace core
 {
@@ -247,7 +249,7 @@ void ContourDetector::detect(YUVImage& image)
 
     image.doBinaryMask(m_binFunc);
     const Matrix<unsigned char>& mask = image.getBinaryMask();
-    const Matrix<int>& integral = image.getIntegralMask();
+    const IntegralImage& integral = image.getIntegralMask();
 
     int detectedArea = integral(m_height - 1, m_width - 1);
     int border = image.getMaskBorder();
@@ -282,19 +284,19 @@ void ContourDetector::reset(void)
     m_contour.clear();
 }
 
-void ContourDetector::findContour(const Matrix<unsigned char>& mask, const Matrix<int>& integral, int maskBorder)
+void ContourDetector::findContour(const Matrix<unsigned char>& mask, const IntegralImage& integral, int maskBorder)
 {
     if ( findStartPoint(mask, integral, maskBorder) )
-        detourContour(mask, maskBorder);
+        detourContour(mask, integral, maskBorder);
 }
 
-bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Matrix<int>& integral, int maskBorder)
+bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const IntegralImage& integral, int maskBorder)
 {
     // i - rows; j - cols
     const int iBegin = maskBorder;
     const int jBegin = maskBorder;
-    const int iEnd = mask.rows() - maskBorder;
-    const int jEnd = mask.cols() - maskBorder;
+    const int iEnd = integral.iMax();//mask.rows() - maskBorder;
+    const int jEnd = integral.jMax();//mask.cols() - maskBorder;
 
     // let's find start point on the borders of the image
     // consider the presence of mask borders (at least 1)
@@ -307,8 +309,7 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
         // top
         if (mask(iBegin, j))
         {
-            int val = integral(iBegin + 1, j + 1) - integral(iBegin - 1, j + 1) -
-                integral(iBegin + 1, j - 2) + integral(iBegin - 1, j - 2);
+            int val = integral.sumInSquare(iBegin, j - 1, iBegin + 1, j + 1);
             if ( val >= kTreshold)
             {
                 m_iStart = iBegin;
@@ -319,8 +320,7 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
         // bottom
         if (mask(iEnd - 1, j))
         {
-            int val = integral(iEnd - 1, j + 1) - integral(iEnd - 3, j + 1) -
-                integral(iEnd - 1, j - 2) + integral(iEnd - 3, j - 2);
+            int val = integral.sumInSquare(iEnd - 2, j - 1, iEnd - 1, j + 1);
             if ( val >= kTreshold )
             {
                 m_iStart = iEnd - 1;
@@ -335,8 +335,7 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
         // left
         if (mask(i, jBegin))
         {
-            int val = integral(i + 1, jBegin + 1) - integral(i - 2, jBegin + 1) -
-                integral(i + 1, jBegin - 1) + integral(i - 2, jBegin - 1);
+            int val = integral.sumInSquare(i - 1, jBegin, i + 1, jBegin + 1);
             if ( val >= kTreshold)
             {
                 m_iStart = i - 1;
@@ -347,8 +346,7 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
         // right
         if (mask(i, jEnd - 1))
         {
-            int val = integral(i + 1, jEnd - 1) - integral(i + 1, jEnd - 3) -
-                integral(i - 2, jEnd - 1) + integral(i - 2, jEnd - 3);
+            int val = integral.sumInSquare(i - 1, jEnd - 2, i + 1, jEnd - 1);
             if ( val >= kTreshold )
             {
                 m_iStart = i - 1;
@@ -365,8 +363,7 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
             if (mask(i, j))
             {
                 // this pixel is not noise
-                int val = integral(i + 1, j + 1) - integral(i + 1, j - 2) -
-                    integral(i - 2, j + 1) + integral(i - 2, j - 2);
+                int val = integral.sumInSquare(i - 1, j - 1, i + 1, j + 1);
 
                 static const int kThreshold1 = 9;
                 if (val >= kThreshold1)
@@ -381,15 +378,15 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const Ma
     return false;
 }
 
-void ContourDetector::detourContour(const Matrix<unsigned char>& mask, int maskBorder)
+void ContourDetector::detourContour(const Matrix<unsigned char>& mask, const IntegralImage& integral, int maskBorder)
 {
     const Pixel start(m_iStart, m_jStart);
     Pixel px(m_iStart, m_jStart);
 
     const int iBegin = maskBorder;
     const int jBegin = maskBorder;
-    const int iEnd = mask.rows() - maskBorder;
-    const int jEnd = mask.cols() - maskBorder;
+    const int iEnd = integral.iMax();//mask.rows() - maskBorder;
+    const int jEnd = integral.jMax();//mask.cols() - maskBorder;
 
     // borders on the previous step
     bool tPrevBorder = false;    // top previous border
@@ -432,16 +429,38 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, int maskB
         {
             int iInd = iCurrent;
             int jInd = jCurrent;
-            // because of two pixels means that we moving on the border:
+            // because of two pixels in a row means that we moving on the border:
             int iShift = px.iShift();
             int jShift = px.jShift();
 
-            while ( mask(px + Vector2D<int>(2 * iShift, 2 * jShift)) )
+            assert(!iShift || !jShift);
+
+            // moving from 1 to the 2
+            // 1XXXXXXXXXXXXX40XXX2
+            // XXXXXXXXXXXXXX3
+            // XXXXXXXXXX
+            // ...
+            while ( mask(px + Vector2DInt(2 * iShift, 2 * jShift)) )
             {
                 iInd += iShift;
                 jInd += jShift;
                 px.moveTo(iInd, jInd);
             }
+            // moving to the real edge
+            // 0 - is the real edge, if moving from 1 to 2
+            // NOTE: remember: we are moving clockwise
+            while ( !mask(px + Vector2DInt(jShift, -iShift)) )
+            {
+                iInd -= iShift;
+                jInd -= jShift;
+                px.moveTo(iInd, jInd);
+            }
+            // making right traectory: moving 4 -> 0 -> 3
+            px.moveTo(iInd + iShift, jInd + jShift);
+            px.moveTo(iInd + jShift, jInd - iShift);
+
+            m_contour.push_back(px);
+            px.moveTo(iInd + iShift, jInd + jShift);
 
             tCurrBorder = false;
             bCurrBorder = false;

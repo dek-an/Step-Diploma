@@ -11,14 +11,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Contour.cpp" />
     <ClCompile Include="..\src\ContourDetector.cpp" />
     <ClCompile Include="..\src\geometry\Vector3D.cpp" />
     <ClCompile Include="..\src\gestures\Gesture.cpp" />
     <ClCompile Include="..\src\gestures\GestureDetector.cpp" />
     <ClCompile Include="..\src\gestures\GestureRecognitor.cpp" />
+    <ClCompile Include="..\src\IntegralImage.cpp" />
     <ClCompile Include="..\src\YUVImage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\core\Contour.h" />
     <ClInclude Include="..\include\core\ContourDetector.h" />
     <ClInclude Include="..\include\core\geometry\Matrix.h" />
     <ClInclude Include="..\include\core\geometry\Vector2D.h" />
@@ -26,6 +29,7 @@
     <ClInclude Include="..\include\core\gestures\Gesture.h" />
     <ClInclude Include="..\include\core\gestures\GestureDetector.h" />
     <ClInclude Include="..\include\core\gestures\GestureRecognitor.h" />
+    <ClInclude Include="..\include\core\IntegralImage.h" />
     <ClInclude Include="..\include\core\YUVImage.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

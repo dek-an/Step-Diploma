@@ -60,6 +60,12 @@
     <ClInclude Include="..\include\core\geometry\Vector2D.h">
       <Filter>Geometry\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\core\Contour.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\IntegralImage.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\YUVImage.cpp">
@@ -78,6 +84,12 @@
       <Filter>Gestures\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ContourDetector.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Contour.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\IntegralImage.cpp">
       <Filter>Core\Source Files</Filter>
     </ClCompile>
   </ItemGroup>

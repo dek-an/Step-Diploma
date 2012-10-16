@@ -1,6 +1,7 @@
 #include <core/YUVImage.h>
 #include <core/ContourDetector.h>
 #include "core/../../src/ContourDetector.cpp"
+#include <core/Contour.h>
 #include <iostream>
 
 using namespace std;
@@ -123,7 +124,7 @@ void YUVImageBinaryIntegralTest()
     img.setMaskBorder(2);
     img.doBinaryMask(&simpleBin);
     print<unsigned char>(img.getBinaryMask());
-    print<int>(img.getIntegralMask());
+    print<int>(img.getIntegralMask().getRaw());
 
     delete[] data;
 }
@@ -157,11 +158,10 @@ void SimpleContourDetectorTest()
     ContourDetector* cd = new ContourDetector(&simpleBin);
     cd->detect(img);
 
-    typedef ContourDetector::ContourContainer Contour;
     const Contour& cont = cd->getContour();
-    Contour::const_iterator begin = cont.begin();
-    Contour::const_iterator end = cont.end();
-    for (Contour::const_iterator it = begin; it != end; ++it)
+    Contour::ContourIterator begin = cont.begin();
+    Contour::ContourIterator end = cont.end();
+    for (Contour::ContourIterator it = begin; it != end; ++it)
         *(data + it->x() * width + it->y()) = 33;
 
     print(data, width, height);
@@ -210,9 +210,30 @@ void BordersContourDetectorTest()
         2, 2,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2
     };
 
-    print(data1, width, height);
+    unsigned char data2[225] =
+    {
+        2, 0,   2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2,
+        0, 1,   2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
 
-    YUVImage img(format, width, height, data1);
+        2, 2,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 3,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 4,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 5,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 6,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 7,   1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 8,   1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0,   2, 2,
+        2, 9,   1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,   2, 2,
+        2, 10,  1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,   2, 2,
+        2, 11,  0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0,   2, 2,
+        2, 12,  0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0,   2, 2,
+
+        2, 13,  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2,
+        2, 14,  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,   2, 2
+    };
+
+    print(data2, width, height);
+
+    YUVImage img(format, width, height, data2);
     img.setMaskBorder(2);
 
     ContourDetector cd(simpleBin);
@@ -222,11 +243,10 @@ void BordersContourDetectorTest()
     for (int i = 0; i < 255; ++i)
         outData[i] = 0;
 
-    typedef ContourDetector::ContourContainer Contour;
     Contour cont = cd.getContour();
-    Contour::const_iterator begin = cont.begin();
-    Contour::const_iterator end = cont.end();
-    for (Contour::const_iterator it = begin; it != end; ++it)
+    Contour::ContourIterator begin = cont.begin();
+    Contour::ContourIterator end = cont.end();
+    for (Contour::ContourIterator it = begin; it != end; ++it)
         *(outData + it->x() * width + it->y()) = 2;
 
     print(outData, 15, 15);

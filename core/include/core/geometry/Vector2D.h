@@ -176,6 +176,13 @@ void Vector2D<T>::swap(Vector2D<T>& v)
     v.m_data[0] = x; v.m_data[1] = y;
 }
 
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+typedef Vector2D<int> Vector2DInt;
+typedef Vector2D<float> Vector2DFloat;
+
 } // namespace core
 
 #endif // GEOMETRY_VECTOR2D_H_

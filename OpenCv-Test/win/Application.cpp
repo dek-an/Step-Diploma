@@ -107,12 +107,11 @@ void Application::captureCamera(void)
                 frameGRAY->imageData[i * width + j] = 0;//img.m_binaryMask(i, j);
 //        delete grayImg;
 
-        typedef ContourDetector::ContourContainer Contour;
         Contour cont = cd.getContour();
-        Contour::const_iterator begin = cont.begin();
-        Contour::const_iterator end = cont.end();
+        Contour::ContourIterator begin = cont.begin();
+        Contour::ContourIterator end = cont.end();
         int kk = 0;
-        for (Contour::const_iterator it = begin; it != end; ++it, ++kk)
+        for (Contour::ContourIterator it = begin; it != end; ++it, ++kk)
             frameGRAY->imageData[it->x() * width + it->y()] = 255;
 
         if (frameRGB)

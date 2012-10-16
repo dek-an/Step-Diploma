@@ -100,7 +100,7 @@ YUVImage::YUVImage(ImageFormat format, int width, int height, const unsigned cha
     , m_dataOwner(false)
 
     , m_binaryMask(height, width)
-    , m_integral(height, width)
+    , m_integral(width, height)
     , m_maskBorder(5)
 {
     applyFormat();
@@ -186,16 +186,7 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
         }
 
         m_binaryMask.set(i, j, val);
-
-        val %= 254;
-
-        if (!i && j)
-            val += m_integral(i, j - 1);
-        else if (i && !j)
-            val += m_integral(i - 1, j);
-        else if (i && j)
-            val += m_integral(i, j - 1) + m_integral(i - 1, j) - m_integral(i - 1, j - 1);
-        m_integral.set(i, j, val);
+        m_integral.addVal(i, j, val);
 
         ++j %= m_width;
         if (!j)

@@ -2,6 +2,7 @@
 #define CORE_YUVIMAGE_H_
 
 #include "geometry/Matrix.h"
+#include "IntegralImage.h"
 
 namespace core
 {
@@ -68,7 +69,7 @@ public:
     void doBinaryMask(BinarizationFunction binFunc);
     void smoothBinaryMask(int radius = 1);
     inline const Matrix<unsigned char>& getBinaryMask(void) const { return m_binaryMask; }
-    inline const Matrix<int>& getIntegralMask(void) const { return m_integral; }
+    inline const IntegralImage& getIntegralMask(void) const { return m_integral; }
     inline void setMaskBorder(int border) { m_maskBorder = border; }
     inline int getMaskBorder() const { return m_maskBorder; }
 
@@ -109,7 +110,7 @@ public:
     // 0 or 255
     // binary mask with clean borders (zero values on the borders)
     Matrix<unsigned char>   m_binaryMask;
-    Matrix<int>             m_integral;
+    IntegralImage           m_integral;
     int                     m_maskBorder;
 };
 

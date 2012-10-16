@@ -112,6 +112,13 @@ void Matrix<T>::setColValue(int col, T val)
 {
 }
 
+// ---------------------------------------------------
+// ---------------------------------------------------
+// ---------------------------------------------------
+
+typedef Matrix<float>   MatrixFloat;
+typedef Matrix<int>     MatrixInt;
+
 } // namespace core
 
 #endif // GEOMETRY_MATRIX_H_
