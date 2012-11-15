@@ -389,8 +389,8 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, const Int
 #if USE_BORDER_SKIP
     const int iBegin = maskBorder;
     const int jBegin = maskBorder;
-    const int iEnd = mask.rows() - maskBorder;
-    const int jEnd = mask.cols() - maskBorder;
+    const int iEnd = integral.iMax(); // less than mask.rows() - maskBorder;
+    const int jEnd = integral.jMax(); // less than mask.cols() - maskBorder;
 
     // borders on the previous step
     bool tPrevBorder = false;    // top previous border

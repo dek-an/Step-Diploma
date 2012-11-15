@@ -113,17 +113,6 @@ YUVImage::~YUVImage()
 }
 
 
-int YUVImage::width() const
-{
-    return m_width;
-}
-
-int YUVImage::height() const
-{
-    return m_height;
-}
-
-
 unsigned char YUVImage::operator()(char comp, int row, int col) const
 {
     switch(comp)
@@ -154,26 +143,20 @@ const unsigned char* YUVImage::data() const
 
 void YUVImage::doBinaryMask(BinarizationFunction binFunc)
 {
-    //const int binDataSize = m_width *m_height;
-    //unsigned char* binData = new unsigned char[binDataSize];
-
     const YUVImageIterator yBegin = beginY();
     const YUVImageIterator yEnd = endY();
     const YUVImageIterator uBegin = beginU();
     const YUVImageIterator uEnd = endU();
     const YUVImageIterator vBegin = beginV();
     const YUVImageIterator vEnd = endV();
-    //const unsigned char* maskBegin = binData;
-    //const unsigned char* maskEnd = maskBegin + binDataSize;
 
     YUVImageIterator yIt = yBegin;
     YUVImageIterator uIt = uBegin;
     YUVImageIterator vIt = vBegin;
-    //unsigned char* maskIt = binData;
 
     int i = 0;
     int j = 0;
-    for (; yIt != yEnd && uIt != uEnd && vIt != vEnd /*&& maskIt != maskEnd*/; ++yIt, ++uIt, ++vIt/*, ++maskIt*/)
+    for (; yIt != yEnd && uIt != uEnd && vIt != vEnd; ++yIt, ++uIt, ++vIt)
     {
         int val = 0;
 
@@ -182,7 +165,6 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
         {
             if ( binFunc(*yIt, *uIt, *vIt) )
                 val = 255;
-            //*maskIt = val;
         }
 
         m_binaryMask.set(i, j, val);
@@ -192,11 +174,6 @@ void YUVImage::doBinaryMask(BinarizationFunction binFunc)
         if (!j)
             ++i;
     }
-
-    //YUVImage* res = new YUVImage(GRAY, m_width, m_height, binData);
-    //res->m_dataOwner = true;
-
-    //return res;
 }
 
 void YUVImage::smoothBinaryMask(int radius/* = 1*/)

@@ -58,9 +58,14 @@ public:
     ~YUVImage();
 
 public:
-    int width() const;
-    int height() const;
+    inline int width() const { return m_width; }
+    inline int height() const { return m_height; }
 
+    /// \brief Returns component of pixel with position (row, col)
+    ///
+    /// \param comp Component of YUV image ( 'y', 'u' or 'v' )
+    /// \param row Row of the pixel
+    /// \param col Column of the pixel
     unsigned char operator()(char comp, int row, int col) const;
 
     const unsigned char* data() const;
@@ -68,6 +73,7 @@ public:
 public:
     void doBinaryMask(BinarizationFunction binFunc);
     void smoothBinaryMask(int radius = 1);
+
     inline const Matrix<unsigned char>& getBinaryMask(void) const { return m_binaryMask; }
     inline const IntegralImage& getIntegralMask(void) const { return m_integral; }
     inline void setMaskBorder(int border) { m_maskBorder = border; }
