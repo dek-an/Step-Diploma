@@ -35,7 +35,7 @@ public:
     bool moveToCurrentAround();
     Vector2D<int> currentAround() const;
 
-    void operator++();
+    Pixel operator++();
     Pixel operator++(int);
     Pixel operator+=(const Vector2D<int>& v);
     bool operator==(const Pixel& px) const;
@@ -110,11 +110,13 @@ bool ContourDetector::Pixel::moveToCurrentAround()
     return moveTo(m_iA, m_jA);
 }
 
-void ContourDetector::Pixel::operator++()
+ContourDetector::Pixel ContourDetector::Pixel::operator++()
 {
     ++m_normal %= 8;
     m_iA = m_i + indI[m_normal];
     m_jA = m_j + indJ[m_normal];
+
+    return *this;
 }
 
 ContourDetector::Pixel ContourDetector::Pixel::operator++(int)
@@ -378,30 +380,40 @@ bool ContourDetector::findStartPoint(const Matrix<unsigned char>& mask, const In
     return false;
 }
 
+#define USE_BORDER_SKIP 0
 void ContourDetector::detourContour(const Matrix<unsigned char>& mask, const IntegralImage& integral, int maskBorder)
 {
     const Pixel start(m_iStart, m_jStart);
     Pixel px(m_iStart, m_jStart);
 
+#if USE_BORDER_SKIP
     const int iBegin = maskBorder;
     const int jBegin = maskBorder;
-    const int iEnd = integral.iMax();//mask.rows() - maskBorder;
-    const int jEnd = integral.jMax();//mask.cols() - maskBorder;
+    const int iEnd = mask.rows() - maskBorder;
+    const int jEnd = mask.cols() - maskBorder;
 
     // borders on the previous step
     bool tPrevBorder = false;    // top previous border
     bool bPrevBorder = false;    // bottom previous border
     bool lPrevBorder = false;    // left previous border
     bool rPrevBorder = false;    // right previous border
+#endif
 
     do
     {
-        m_contour.push_back(px);
+        // TODOD: Now loop in main while. px always not equal start
 
+        m_contour.push_back(px);
+#if USE_BORDER_SKIP
         // in case if the set of pixels is on the border
         // we have to skip it all while such situation
         int iCurrent = px.iCurrent();
         int jCurrent = px.jCurrent();
+
+        assert(iBegin <= iCurrent);
+        assert(iCurrent < iEnd);
+        assert(jBegin <= jCurrent);
+        assert(jCurrent < jEnd);
 
         // current borders
         bool tCurrBorder = (iBegin == iCurrent);    // current top border
@@ -436,31 +448,58 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, const Int
             assert(!iShift || !jShift);
 
             // moving from 1 to the 2
-            // 1XXXXXXXXXXXXX40XXX2
-            // XXXXXXXXXXXXXX3
-            // XXXXXXXXXX
+            // X1XXXXXXXXXXXX40XXX2XE
+            // XXXXXXXXXXXXXX3E
+            // XXXXXXXXXXE
             // ...
             while ( mask(px + Vector2DInt(2 * iShift, 2 * jShift)) )
-            {
-                iInd += iShift;
-                jInd += jShift;
-                px.moveTo(iInd, jInd);
-            }
-            // moving to the real edge
+                px.moveTo( iInd += iShift, jInd += jShift );
+
+            assert(iBegin <= px.iCurrent());
+            assert(px.iCurrent() < iEnd);
+            assert(jBegin <= px.jCurrent());
+            assert(px.jCurrent() < jEnd);
+
+            // moving (back) to the real edge
             // 0 - is the real edge, if moving from 1 to 2
             // NOTE: remember: we are moving clockwise
+            //
+            //x "Vector2DInt(iShift, jShift)" - previous pixel;
+            // "Vector2DInt(jShift , -iShift)" - normal to move vector.
+            //
+            // we move back to 4 because of history in px (there is storage of prev moving)
+            bool isMoveBack = false;
             while ( !mask(px + Vector2DInt(jShift, -iShift)) )
             {
-                iInd -= iShift;
-                jInd -= jShift;
-                px.moveTo(iInd, jInd);
-            }
-            // making right traectory: moving 4 -> 0 -> 3
-            px.moveTo(iInd + iShift, jInd + jShift);
-            px.moveTo(iInd + jShift, jInd - iShift);
+                px.moveTo( iInd -= iShift, jInd -= jShift );
 
-            m_contour.push_back(px);
+                assert(iBegin <= px.iCurrent());
+                assert(px.iCurrent() < iEnd);
+                assert(jBegin <= px.jCurrent());
+                assert(px.jCurrent() < jEnd);
+
+                isMoveBack = true;
+            }
+
+            // making right traectory of the px: moving 4 -> 0 -> 3
+            //
+            // 4 -> 0
             px.moveTo(iInd + iShift, jInd + jShift);
+            assert(iBegin <= px.iCurrent());
+            assert(px.iCurrent() < iEnd);
+            assert(jBegin <= px.jCurrent());
+            assert(px.jCurrent() < jEnd);
+            if ( px.iCurrent() != iCurrent || px.jCurrent() != jCurrent )
+                m_contour.push_back(px);
+            if (isMoveBack)
+            {
+                // 0 -> 3
+                px.moveTo(iInd + jShift, jInd - iShift);
+                assert(iBegin <= px.iCurrent());
+                assert(px.iCurrent() < iEnd);
+                assert(jBegin <= px.jCurrent());
+                assert(px.jCurrent() < jEnd);
+            }
 
             tCurrBorder = false;
             bCurrBorder = false;
@@ -468,16 +507,18 @@ void ContourDetector::detourContour(const Matrix<unsigned char>& mask, const Int
             rCurrBorder = false;
         }
         else
+#endif
         {
             while ( !mask(px.currentAround()) )
                 ++px;
             px.moveToCurrentAround();
         }
-
+#if USE_BORDER_SKIP
         tPrevBorder = tCurrBorder;
         bPrevBorder = bCurrBorder;
         lPrevBorder = lCurrBorder;
         rPrevBorder = rCurrBorder;
+#endif
     } while ( px != start );
     m_contourFounded = true;
 }
