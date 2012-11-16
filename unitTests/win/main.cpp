@@ -1,11 +1,15 @@
 #include <core/YUVImage.h>
 #include <core/ContourDetector.h>
+#include <core/typedefs.h>
 #include "core/../../src/ContourDetector.cpp"
 #include <core/Contour.h>
 #include <iostream>
 
 using namespace std;
 using namespace core;
+
+typedef YUVImage::ImageFormat ImageFormat;
+typedef YUVImage::iterator ImgIterator;
 
 template <typename T> void print(const Matrix<T>& m);
 void print(const unsigned char* data, int width, int height);
@@ -16,19 +20,25 @@ static YUVImage::ImageFormat format = YUVImage::GRAY;
 static int dataSize = 0;
 unsigned char* data = 0;
 
+void YUV420SPImageTest();
+void YUV420PImageTest();
 void YUVImageTest();
 void YUVImageBinaryIntegralTest();
 void SimpleContourDetectorTest();
 void BordersContourDetectorTest();
 void PixelTest();
+void ScalingTest();
 
 void main()
 {
+    //YUV420SPImageTest();
+    //YUV420PImageTest();
     //YUVImageTest();
     //YUVImageBinaryIntegralTest();
     //SimpleContourDetectorTest();
-    BordersContourDetectorTest();
+    //BordersContourDetectorTest();
     //PixelTest();
+    ScalingTest();
 }
 
 
@@ -342,4 +352,222 @@ void PixelTest()
     for (int i = 0; i < 8; ++i, ++p)
         printf("   current around i = %i   j = %i\n", p.iAround(), p.jAround());
     printf("prev i = %i   j = %i\nshift i = %i   j = %i\n", p.iPrev(), p.jPrev(), p.iShift(), p.jShift());
+}
+
+void ScalingTest()
+{
+    int w = 8;
+    int h = 8;
+    const int dataSize = 96;//(3 * w * h) >> 1;
+    ImageFormat form = YUVImage::YUV420SP;
+    int scale = 2;
+    uchar data[] =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    for (int i = 0; i < dataSize; ++i)
+        data[i] = i;
+    print(data, w, h);
+    for (int i = w * h; i < dataSize; ++i)
+    {
+        if (i && !(i%w))
+            printf("\n");
+        printf ("%3i ", data[i]);
+    }
+
+    YUVImage img(form, w, h, data);
+    YUVImage* scImg = img.scaled(2);
+    int scW = scImg->width();
+    int scH = scImg->height();
+
+    printf("\ny\n");
+    int i = 0;
+    ImgIterator yB = scImg->beginY();
+    ImgIterator yE = scImg->endY();
+    for (ImgIterator it = yB; it != yE; ++it, ++i)
+    {
+        if ( !(i%scW) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    printf("\nu\n");
+    i = 0;
+    ImgIterator uB = scImg->beginU();
+    ImgIterator uE = scImg->endU();
+    for (ImgIterator it = yB; it != uE; ++it, ++i)
+    {
+        if ( !(i%scW) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    printf("\nv\n");
+    i = 0;
+    ImgIterator vB = scImg->beginV();
+    ImgIterator vE = scImg->endV();
+    for (ImgIterator it = yB; it != vE; ++it, ++i)
+    {
+        if ( !(i%scW) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+}
+
+void YUV420SPImageTest()
+{
+    const int w = 8;
+    const int h = 8;
+    const int dataSize = 96;//(3 * w * h) >> 1;
+    ImageFormat form = YUVImage::YUV420SP;
+    uchar data[dataSize] =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    for (int i = 0; i < dataSize; ++i)
+        data[i] = i;
+    print(data, w, h);
+    for (int i = w * h; i < dataSize; ++i)
+    {
+        if (i && !(i%w))
+            printf("\n");
+        printf ("%3i ", data[i]);
+    }
+
+    YUVImage img(form, w, h, data);
+    ImgIterator yB = img.beginY();
+    ImgIterator yE = img.endY();
+    ImgIterator uB = img.beginU();
+    ImgIterator uE = img.endU();
+    ImgIterator vB = img.beginV();
+    ImgIterator vE = img.endV();
+
+    // y
+    printf("\ny\n");
+    int i = 0;
+    for (ImgIterator it = yB; it != yE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    // u
+    printf("\nu\n");
+    i = 0;
+    for (ImgIterator it = uB; it != uE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    // v
+    printf("\nv\n");
+    i = 0;
+    for (ImgIterator it = vB; it != vE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+}
+
+void YUV420PImageTest()
+{
+    const int w = 8;
+    const int h = 8;
+    const int dataSize = 96;//(3 * w * h) >> 1;
+    ImageFormat form = YUVImage::YUV420P;
+    uchar data[dataSize] =
+    {
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    for (int i = 0; i < dataSize; ++i)
+        data[i] = i;
+    print(data, w, h);
+    for (int i = w * h; i < dataSize; ++i)
+    {
+        if (i && !(i%w))
+            printf("\n");
+        printf ("%3i ", data[i]);
+    }
+
+    YUVImage img(form, w, h, data);
+    ImgIterator yB = img.beginY();
+    ImgIterator yE = img.endY();
+    ImgIterator uB = img.beginU();
+    ImgIterator uE = img.endU();
+    ImgIterator vB = img.beginV();
+    ImgIterator vE = img.endV();
+
+    // y
+    printf("\ny\n");
+    int i = 0;
+    for (ImgIterator it = yB; it != yE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    // u
+    printf("\nu\n");
+    i = 0;
+    for (ImgIterator it = uB; it != uE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
+
+    // v
+    printf("\nv\n");
+    i = 0;
+    for (ImgIterator it = vB; it != vE; ++it, ++i)
+    {
+        if ( !(i%w) )
+            printf("\n");
+        printf("%3i ", *it);
+    }
 }

@@ -1,7 +1,7 @@
 #ifndef APPLICATION_H_
 #define APPLICATION_H_
 
-#include <cv.h>
+typedef struct _IplImage IplImage;
 
 class Application
 {
@@ -18,6 +18,8 @@ private:
 private:
     void showHelloWorld(void);
     void captureCamera(void);
+
+    void firstTestings(const IplImage& frameRGB);
 
     static void waitForEsc(int delay = 0);
 };

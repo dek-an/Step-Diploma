@@ -1,4 +1,5 @@
 #include "../include/core/YUVImage.h"
+#include "../include/core/typedefs.h"
 
 #include <cassert>
 #include <memory>
@@ -141,6 +142,109 @@ const unsigned char* YUVImage::data() const
 }
 
 
+YUVImage* YUVImage::scaled(int scale) const
+{
+    if (scale <= 1)
+        return 0;
+
+    if ( m_width / scale < 2 || m_height / scale < 2 )
+        return 0;
+
+    switch (m_format)
+    {
+    case GRAY:
+        return scaledGRAY(scale);
+    case YUV:
+        return scaledYUV(scale);
+    case YUV420P:
+        return scaledYUV420P(scale);
+    case YUV420SP:
+        return scaledYUV420SP(scale);
+    default:
+        assert(false);
+        return 0;
+    }
+}
+
+YUVImage* YUVImage::scaledGRAY(int scale) const
+{
+    assert(GRAY == m_format);
+
+    return 0;
+}
+
+YUVImage* YUVImage::scaledYUV(int scale) const
+{
+    assert(YUV == m_format);
+
+    return 0;
+}
+
+YUVImage* YUVImage::scaledYUV420P(int scale) const
+{
+    assert(YUV420SP == m_format);
+
+    return 0;
+}
+
+YUVImage* YUVImage::scaledYUV420SP(int scale) const
+{
+    assert(YUV420SP == m_format);
+
+    const int scale2 = scale * scale;
+    const float part = 1.f / scale2;
+    const int scWidth = m_width / scale;
+    const int scHeight = m_height / scale;
+    const int scYDataSize = scWidth * scHeight;
+    const int thYDataSize = m_width * m_height;
+    const int scDataSize = (3 * scYDataSize) >> 1;
+    uchar* scData = new uchar[scDataSize];
+    YUVImage* scImage = new YUVImage(m_format, scWidth, scHeight, scData);
+    scImage->m_dataOwner = true;
+    scImage->setMaskBorder(m_maskBorder);
+
+    // y data
+    const uchar* thIt = m_yData;
+    const uchar* thE = m_yData + thYDataSize;
+    const uchar* scE = scData + scYDataSize;
+    int iter = 0;
+    for(uchar* scIt = scData; scIt != scE && thIt != thE; ++scIt, ++iter)
+    {
+        thIt += m_width * (scale - 1) * ( iter && !(iter % scWidth) );
+        int scVal = 0;
+        for (const uchar* thIE = thIt + scale; thIt != thIE; ++thIt)
+            for (int i = 0, e = m_width * scale; i != e; i += m_width)
+                scVal += *(thIt + i);
+        *scIt = scVal * part;
+    }
+
+    // uv data
+    const float partUV = 2.f * part;
+    iter = 0;
+    const uchar* thUVIt = m_yData + thYDataSize;
+    const uchar* thUVE = m_yData + m_dataSize;
+    const uchar* scUVE = scData + scDataSize;
+    bool isU = true;
+    for (uchar* scUVIt = scData + scYDataSize; scUVIt != scUVE && thUVIt != thUVE; ++scUVIt, ++iter)
+    {
+        thUVIt += m_width * (scale - 1) * ( iter && !(iter % m_width) );
+        int scVal = 0;
+        for (const uchar* thIE = thUVIt + scale; thUVIt != thIE; thUVIt += 2)
+        {
+            for (int i = 0, e = m_width * scale; i != e; i += m_width)
+                scVal += *(thUVIt + i);
+        }
+        *scUVIt = scVal * partUV;
+
+        thUVIt += isU + !isU * (scale - 1);
+
+        isU = !isU;
+    }
+
+    return scImage;
+}
+
+
 void YUVImage::doBinaryMask(BinarizationFunction binFunc)
 {
     const YUVImageIterator yBegin = beginY();
@@ -246,63 +350,97 @@ void YUVImage::applyFormat()
     {
     case GRAY:
         m_dataSize /= 3; // = m_width * m_height;
-        if (!m_uData)
-            m_uData = new unsigned char[m_dataSize];
-
-        m_uData = m_yData;
-        m_vData = m_yData;
-
-        m_yEnd = m_yData + m_dataSize;
-        m_uEnd = m_uData + m_dataSize;
-        m_vEnd = m_vData + m_dataSize;
-
         break;
     case YUV:
         //m_dataSize = 3 * width * height;
-
-        if (!m_uData)
-            m_uData = new unsigned char[m_dataSize];
-
-        m_uData = m_yData + 1;
-        m_vData = m_uData + 1;
-
-        m_yEnd = m_yData + m_dataSize;
-        m_uEnd = m_yEnd + 1;
-        m_vEnd = m_uEnd + 1;
-
-        // m_yDivisor = 1;
-        // m_uDivisor = 1;
-        // m_vDivisor = 1;
-
-        m_yStep = 3;
-        m_uStep = 3;
-        m_vStep = 3;
-
         break;
+    case YUV420P:
     case YUV420SP:
         m_dataSize >>= 1;   // = (3 * m_width * m_height) >> 1;
-
-        if (!m_uData)
-            m_uData = new unsigned char[m_dataSize];
-
-        const int imgSize = m_width * m_height;
-        const int imgSizeDiv4 = imgSize >> 2;
-        m_uData = m_yData + imgSize;
-        m_vData = m_uData + imgSizeDiv4;
-
-        m_yEnd = m_uData;
-        m_uEnd = m_vData;
-        m_vEnd = m_vData + imgSizeDiv4;
-
-        //m_yDivisor = 1;
-        m_uDivisor = 2;
-        m_vDivisor = 2;
-
-        //m_yStep = 1;
-        //m_uStep = 1;
-        //m_vStep = 1;
-
         break;
+    default:
+        assert(false);
+    }
+    if (!m_yData)
+    {
+        m_yData = new unsigned char[m_dataSize];
+        m_dataOwner = true;
+    }
+
+    switch (m_format)
+    {
+    case GRAY:
+        {
+            m_uData = m_yData;
+            m_vData = m_yData;
+
+            m_yEnd = m_yData + m_dataSize;
+            m_uEnd = m_uData + m_dataSize;
+            m_vEnd = m_vData + m_dataSize;
+
+            break;
+        }
+    case YUV:
+        {
+            m_uData = m_yData + 1;
+            m_vData = m_uData + 1;
+
+            m_yEnd = m_yData + m_dataSize;
+            m_uEnd = m_yEnd + 1;
+            m_vEnd = m_uEnd + 1;
+
+            // m_yDivisor = 1;
+            // m_uDivisor = 1;
+            // m_vDivisor = 1;
+
+            m_yStep = 3;
+            m_uStep = 3;
+            m_vStep = 3;
+
+            break;
+        }
+    case YUV420P:
+        {
+            const int imgSize = m_width * m_height;
+            const int imgSizeDiv4 = imgSize >> 2;
+            m_uData = m_yData + imgSize;
+            m_vData = m_uData + imgSizeDiv4;
+
+            m_yEnd = m_uData;
+            m_uEnd = m_vData;
+            m_vEnd = m_vData + imgSizeDiv4;
+
+            //m_yDivisor = 1;
+            m_uDivisor = 2;
+            m_vDivisor = 2;
+
+            //m_yStep = 1;
+            //m_uStep = 1;
+            //m_vStep = 1;
+
+            break;
+        }
+    case YUV420SP:
+        {
+            const int imgSize = m_width * m_height;
+            const int imgSizeDiv4 = imgSize >> 2;
+            m_uData = m_yData + imgSize;
+            m_vData = m_uData + 1;
+
+            m_yEnd = m_uData;
+            m_uEnd = m_yData + m_dataSize;
+            m_vEnd = m_uEnd + 1;
+
+            //m_yDivisor = 1;
+            m_uDivisor = 2;
+            m_vDivisor = 2;
+
+            //m_yStep = 1;
+            m_uStep = 2;
+            m_vStep = 2;
+
+            break;
+        }
     }
 }
 

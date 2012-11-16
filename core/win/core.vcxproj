@@ -30,6 +30,7 @@
     <ClInclude Include="..\include\core\gestures\GestureDetector.h" />
     <ClInclude Include="..\include\core\gestures\GestureRecognitor.h" />
     <ClInclude Include="..\include\core\IntegralImage.h" />
+    <ClInclude Include="..\include\core\typedefs.h" />
     <ClInclude Include="..\include\core\YUVImage.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

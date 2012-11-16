@@ -62,67 +62,17 @@ void Application::captureCamera(void)
     cvNamedWindow("CamWnd", CV_WINDOW_AUTOSIZE);
 
     IplImage* frameRGB = 0;
-    IplImage* frameYUV = 0;
-    IplImage* frameGRAY = 0;
-    unsigned char* data = 0;
-
-    ContourDetector cd(GestureRecognitor::skinBinarizationFunction);
 
     while (true)
     {
-        static float sum = 0.f;
-        static int frameNum = 0;
-        float start = clock();
-
         frameRGB = cvQueryFrame(cam);
 
-        float ellapsedTime = clock() - start;
-        sum += ellapsedTime;
-        //printf("ellapsed time: %3.3f   average: %3.3f\n", ellapsedTime, sum / (++frameNum));
-
-        const int width = frameRGB->width;
-        const int height = frameRGB->height;
-        const int size = (width * height * 3);
-        if (!data)
-        {
-            data = new unsigned char[size];
-            frameYUV = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
-            frameGRAY = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
-        }
-
-        cvCvtColor(frameRGB, frameYUV, CV_BGR2YUV);
-        cvCvtColor(frameRGB, frameGRAY, CV_BGR2GRAY);
-
-        for (int i = 0; i < size; ++i)
-            data[i] = (unsigned char)frameYUV->imageData[i];
-
-        YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
-
-        cd.detect(img);
-        //img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
-        //img.smoothBinaryMask();
-        for (int i = 0; i < height; ++i)
-            //frameGRAY->imageData[i] = grayImg->data()[i];
-            for (int j = 0; j < width; ++j)
-                frameGRAY->imageData[i * width + j] = 0;//img.m_binaryMask(i, j);
-//        delete grayImg;
-
-        Contour cont = cd.getContour();
-        Contour::ContourIterator begin = cont.begin();
-        Contour::ContourIterator end = cont.end();
-        int kk = 0;
-        for (Contour::ContourIterator it = begin; it != end; ++it, ++kk)
-            frameGRAY->imageData[it->x() * width + it->y()] = 255;
-
-        if (frameRGB)
-            cvShowImage("CamWnd", frameGRAY);
+        firstTestings(*frameRGB);
 
         char bttn = cvWaitKey(33);
-        if (bttn == 27 || frameNum == 300)
+        if (bttn == 27)
             break;
     }
-
-    delete[] data;
 
     cvReleaseCapture(&cam);
     cvDestroyWindow("CamWnd");
@@ -133,4 +83,51 @@ void Application::waitForEsc(int delay)
     char c = 0;
     while (c != 27)
         c = cvWaitKey(delay);
+}
+
+void Application::firstTestings(const IplImage& frameRGB)
+{
+    static ContourDetector cd(GestureRecognitor::skinBinarizationFunction);
+
+    static IplImage* frameYUV = 0;
+    static IplImage* frameGRAY = 0;
+    static unsigned char* data = 0;
+
+    const int width = frameRGB.width;
+    const int height = frameRGB.height;
+    const int size = (width * height * 3);
+
+    if (!data)
+    {
+        data = new unsigned char[size];
+        frameYUV = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
+        frameGRAY = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
+    }
+
+    cvCvtColor(&frameRGB, frameYUV, CV_BGR2YUV);
+    cvCvtColor(&frameRGB, frameGRAY, CV_BGR2GRAY);
+
+    for (int i = 0; i < size; ++i)
+        data[i] = (unsigned char)frameYUV->imageData[i];
+
+    YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
+
+    cd.detect(img);
+    //img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
+    //img.smoothBinaryMask();
+    for (int i = 0; i < height; ++i)
+        //frameGRAY->imageData[i] = grayImg->data()[i];
+        for (int j = 0; j < width; ++j)
+            frameGRAY->imageData[i * width + j] = 0;//img.m_binaryMask(i, j);
+//        delete grayImg;
+
+    Contour cont = cd.getContour();
+    Contour::ContourIterator begin = cont.begin();
+    Contour::ContourIterator end = cont.end();
+    int kk = 0;
+    for (Contour::ContourIterator it = begin; it != end; ++it, ++kk)
+        frameGRAY->imageData[it->x() * width + it->y()] = 255;
+
+    if (frameGRAY)
+        cvShowImage("CamWnd", frameGRAY);
 }

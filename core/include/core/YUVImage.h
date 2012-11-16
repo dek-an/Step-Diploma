@@ -50,6 +50,7 @@ public:
     {
         GRAY,
         YUV,
+        YUV420P,
         YUV420SP
     };
 
@@ -71,6 +72,8 @@ public:
     const unsigned char* data() const;
 
 public:
+    YUVImage* scaled(int scale) const;
+
     void doBinaryMask(BinarizationFunction binFunc);
     void smoothBinaryMask(int radius = 1);
 
@@ -89,6 +92,11 @@ public: // iterators
 
 private:
     void applyFormat();
+
+    YUVImage* scaledGRAY(int scale) const;
+    YUVImage* scaledYUV(int scale) const;
+    YUVImage* scaledYUV420SP(int scale) const;
+    YUVImage* scaledYUV420P(int scale) const;
 
 private:
     YUVImage(const YUVImage&);
