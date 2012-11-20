@@ -219,24 +219,21 @@ YUVImage* YUVImage::scaledYUV420SP(int scale) const
     }
 
     // uv data
-    const float partUV = 2.f * part;
-    iter = 0;
+    iter = 1;
     const uchar* thUVIt = m_yData + thYDataSize;
     const uchar* thUVE = m_yData + m_dataSize;
     const uchar* scUVE = scData + scDataSize;
     bool isU = true;
     for (uchar* scUVIt = scData + scYDataSize; scUVIt != scUVE && thUVIt != thUVE; ++scUVIt, ++iter)
     {
-        thUVIt += m_width * (scale - 1) * ( iter && !(iter % m_width) );
         int scVal = 0;
-        for (const uchar* thIE = thUVIt + scale; thUVIt != thIE; thUVIt += 2)
-        {
+        for (const uchar *thInnerIt = thUVIt, *thIE = thUVIt + scale + 2;
+            thInnerIt != thIE; thInnerIt += 2)
             for (int i = 0, e = m_width * scale; i != e; i += m_width)
-                scVal += *(thUVIt + i);
-        }
-        *scUVIt = scVal * partUV;
+                scVal += *(thInnerIt + i);
+        *scUVIt = scVal * part;
 
-        thUVIt += isU + !isU * (scale - 1);
+        thUVIt += isU + !isU * (2 * scale - 1) + !(iter % scWidth) * m_width * (scale - 1);
 
         isU = !isU;
     }

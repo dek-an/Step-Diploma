@@ -50,8 +50,10 @@ Matrix<T>::Matrix(int rows, int cols, T* data/* = 0*/)
     , m_data(data)
 {
     if (!data)
+    {
         m_data = new T[rows * cols];
-    m_dataOwner = true;
+        m_dataOwner = true;
+    }
 }
 
 template <typename T>

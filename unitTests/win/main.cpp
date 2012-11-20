@@ -408,7 +408,7 @@ void ScalingTest()
     i = 0;
     ImgIterator uB = scImg->beginU();
     ImgIterator uE = scImg->endU();
-    for (ImgIterator it = yB; it != uE; ++it, ++i)
+    for (ImgIterator it = uB; it != uE; ++it, ++i)
     {
         if ( !(i%scW) )
             printf("\n");
@@ -419,7 +419,7 @@ void ScalingTest()
     i = 0;
     ImgIterator vB = scImg->beginV();
     ImgIterator vE = scImg->endV();
-    for (ImgIterator it = yB; it != vE; ++it, ++i)
+    for (ImgIterator it = vB; it != vE; ++it, ++i)
     {
         if ( !(i%scW) )
             printf("\n");
