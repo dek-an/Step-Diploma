@@ -22,9 +22,9 @@ Application::~Application(void)
 int Application::run(void)
 {
     //showHelloWorld();
-    //captureCamera();
+    captureCamera();
     //processImage("logo-1-640x480.jpg");
-    processImage("kote-1-640x480.jpg");
+    //processImage("kote-1-640x480.jpg");
 
     return 0;
 }
