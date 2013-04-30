@@ -62,6 +62,7 @@ void Application::captureCamera(void)
     printf("FORMAT: %f\n", cvGetCaptureProperty(cam, CV_CAP_PROP_BRIGHTNESS));
 
     cvNamedWindow("CamWnd", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
 
     IplImage* frameRGB = 0;
 
@@ -69,6 +70,7 @@ void Application::captureCamera(void)
     {
         frameRGB = cvQueryFrame(cam);
 
+        cvShowImage("Original", frameRGB);
         firstTestings(*frameRGB);
 
         char bttn = cvWaitKey(33);
@@ -77,7 +79,7 @@ void Application::captureCamera(void)
     }
 
     cvReleaseCapture(&cam);
-    cvDestroyWindow("CamWnd");
+    cvDestroyAllWindows();
 }
 
 void Application::processImage(const char* imgFile)
