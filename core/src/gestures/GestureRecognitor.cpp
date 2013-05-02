@@ -47,9 +47,9 @@ GestureRecognitor::~GestureRecognitor()
 }
 
 
-void GestureRecognitor::recognize(const char* what)
+void GestureRecognitor::recognize(const std::string& what)
 {
-    if ( !strcmp("Paper/Scissors/Stone", what) )
+    if ( what == "Paper/Scissors/Stone")
         addGestureDetector(new PaperScissorsStoneDetector());
 }
 
@@ -58,7 +58,7 @@ void GestureRecognitor::detect(YUVImage* frame)
 
 }
 
-Gesture* GestureRecognitor::retrieve(const char* what) const
+Gesture* GestureRecognitor::retrieve(const std::string& what) const
 {
     const long gestureType = determineGestureType(what);
     if (!gestureType)
@@ -85,13 +85,13 @@ bool GestureRecognitor::addGestureDetector(GestureDetector* detector)
     return true;
 }
 
-long GestureRecognitor::determineGestureType(const char* strGesture) const
+long GestureRecognitor::determineGestureType(const std::string& strGesture) const
 {
-    if ( !strcmp("Paper", strGesture) )
+    if (strGesture == "Paper")
         return PaperGesture::GestureType;
-    if ( !strcmp("Scissors", strGesture) )
+    if (strGesture == "Scissors")
         return ScissorsGesture::GestureType;
-    if ( !strcmp("Stone", strGesture) )
+    if (strGesture == "Stone")
         return StoneGesture::GestureType;
 
     return 0;

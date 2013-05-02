@@ -14,8 +14,7 @@ public:
     bool isType(long detectorType) const;
 
 public:
-    void detect();
-
+    virtual void detect() = 0;
 
 private:
     long    m_detectorType;
@@ -33,7 +32,10 @@ public:
 
 public:
     PaperScissorsStoneDetector();
+    ~PaperScissorsStoneDetector();
 
+public:
+    virtual void detect(/*some contour info here*/);
 };
 
 } // namespace core

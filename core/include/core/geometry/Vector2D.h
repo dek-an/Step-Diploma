@@ -8,33 +8,28 @@ template <typename T = float>
 class Vector2D
 {
 public:
-    inline Vector2D<T>();
-    inline Vector2D<T>(T x, T y);
-    inline Vector2D<T>(const T* data);
-    inline Vector2D<T>(const Vector2D<T>& v);
+    Vector2D();
+    Vector2D(T x, T y);
+    explicit Vector2D(const T* data);
+    Vector2D(const Vector2D& v);
 
 public:
     inline T x() const;
     inline T y() const;
 
-    Vector2D& operator=(const Vector2D<T>& v);
+    Vector2D& operator=(const Vector2D& v);
 
-    inline Vector2D<T>&    operator+=(const Vector2D& v);
-    inline Vector2D<T>&    operator-=(const Vector2D& v);
-    inline Vector2D<T>&    operator*=(T d);
-    inline Vector2D<T>&    operator/=(T d);
+    inline Vector2D&    operator+=(const Vector2D& v);
+    inline Vector2D&    operator-=(const Vector2D& v);
+    inline Vector2D&    operator*=(T d);
+    inline Vector2D&    operator/=(T d);
 
-    friend inline Vector2D<T>   operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
-    {
-        Vector2D<T> res(v1);
-        res += v2;
-        return res;
-    }
-    friend inline Vector2D<T>   operator-(const Vector2D<T>& v1, const Vector2D<T>& v2);
-    friend inline Vector2D<T>   operator/(const Vector2D<T>& v, T d);
-    friend inline Vector2D<T>   operator*(const Vector2D<T>& v, T d);
-    friend inline Vector2D<T>   operator*(T d, const Vector2D<T>& v2);
-    friend inline T             operator*(const Vector2D<T>& v1, const Vector2D<T>& v2);
+    friend inline Vector2D  operator+(const Vector2D& v1, const Vector2D& v2);
+    friend inline Vector2D  operator-(const Vector2D& v1, const Vector2D& v2);
+    friend inline Vector2D  operator/(const Vector2D& v, T d);
+    friend inline Vector2D  operator*(const Vector2D& v, T d);
+    friend inline Vector2D  operator*(T d, const Vector2D& v2);
+    friend inline T         operator*(const Vector2D& v1, const Vector2D& v2);
 
 private:
     void swap(Vector2D& v);
@@ -48,25 +43,25 @@ private:
 // ----------------------------------------------------------------------------
 
 template <typename T>
-inline Vector2D<T>::Vector2D()
+Vector2D<T>::Vector2D()
 {
     m_data[0] = m_data[1] = 0;
 }
 
 template <typename T>
-inline Vector2D<T>::Vector2D(T x, T y)
+Vector2D<T>::Vector2D(T x, T y)
 {
     m_data[0] = x; m_data[1] = y;
 }
 
 template <typename T>
-inline Vector2D<T>::Vector2D(const T* data)
+Vector2D<T>::Vector2D(const T* data)
 {
     m_data[0] = data[0]; m_data[1] = data[1];
 }
 
 template <typename T>
-inline Vector2D<T>::Vector2D(const Vector2D<T>& v)
+Vector2D<T>::Vector2D(const Vector2D<T>& v)
 {
     m_data[0] = v.m_data[0]; m_data[1] = v.m_data[1];
 }
@@ -114,13 +109,13 @@ inline Vector2D<T>& Vector2D<T>::operator*=(T d)
 }
 
 
-//template <typename T>
-//inline Vector2D<T> operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
-//{
-//    Vector2D<T> res(v1);
-//    res += v2;
-//    return res;
-//}
+template <typename T>
+inline Vector2D<T> operator+(const Vector2D<T>& v1, const Vector2D<T>& v2)
+{
+    Vector2D<T> res(v1);
+    res += v2;
+    return res;
+}
 
 template <typename T>
 inline Vector2D<T> operator-(const Vector2D<T>& v1, const Vector2D<T>& v2)
@@ -131,7 +126,7 @@ inline Vector2D<T> operator-(const Vector2D<T>& v1, const Vector2D<T>& v2)
 }
 
 template <typename T>
-inline Vector2D<T> operator/(const Vector2D<T>& v, float d)
+inline Vector2D<T> operator/(const Vector2D<T>& v, T d)
 {
     Vector2D<T> res(v);
     res /= d;
@@ -139,7 +134,7 @@ inline Vector2D<T> operator/(const Vector2D<T>& v, float d)
 }
 
 template <typename T>
-inline Vector2D<T> operator*(const Vector2D<T>& v, float d)
+inline Vector2D<T> operator*(const Vector2D<T>& v, T d)
 {
     Vector2D<T><T> res(v);
     res *= d;
@@ -147,13 +142,13 @@ inline Vector2D<T> operator*(const Vector2D<T>& v, float d)
 }
 
 template <typename T>
-inline Vector2D<T> operator*(float d, const Vector2D<T>& v)
+inline Vector2D<T> operator*(T d, const Vector2D<T>& v)
 {
     return v * d;
 }
 
 template <typename T>
-inline float operator*(const Vector2D<T>& v1, const Vector2D<T>& v2)
+inline T operator*(const Vector2D<T>& v1, const Vector2D<T>& v2)
 {
     return v1.m_data[0] * v2.m_data[0] + v1.m_data[1] * v2.m_data[1];
 }
@@ -171,7 +166,7 @@ Vector2D<T>& Vector2D<T>::operator=(const Vector2D<T>& v)
 template <typename T>
 void Vector2D<T>::swap(Vector2D<T>& v)
 {
-    float x = m_data[0]; float y = m_data[1];
+    T x = m_data[0]; T y = m_data[1];
     m_data[0] = v.m_data[0]; m_data[1] = v.m_data[1];
     v.m_data[0] = x; v.m_data[1] = y;
 }
@@ -180,7 +175,7 @@ void Vector2D<T>::swap(Vector2D<T>& v)
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 
-typedef Vector2D<int> Vector2DInt;
+typedef Vector2D<int>   Vector2DInt;
 typedef Vector2D<float> Vector2DFloat;
 
 } // namespace core

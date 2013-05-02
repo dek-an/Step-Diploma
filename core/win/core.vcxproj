@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="..\src\Contour.cpp" />
     <ClCompile Include="..\src\ContourDetector.cpp" />
-    <ClCompile Include="..\src\geometry\Vector3D.cpp" />
     <ClCompile Include="..\src\gestures\Gesture.cpp" />
     <ClCompile Include="..\src\gestures\GestureDetector.cpp" />
     <ClCompile Include="..\src\gestures\GestureRecognitor.cpp" />

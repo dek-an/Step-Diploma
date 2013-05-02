@@ -1,7 +1,7 @@
 #include <core/YUVImage.h>
 #include <core/ContourDetector.h>
 #include <core/typedefs.h>
-#include "core/../../src/ContourDetector.cpp"
+#include <core/../../src/ContourDetector.cpp>
 #include <core/Contour.h>
 #include <iostream>
 

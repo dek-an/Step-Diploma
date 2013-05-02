@@ -28,13 +28,13 @@ public:
     ~GestureRecognitor();
 
 public:
-    void recognize(const char* what);
+    void recognize(const std::string& what);
     void detect(YUVImage* frame);
-    Gesture* retrieve(const char* what) const;
+    Gesture* retrieve(const std::string& what) const;
 
 private:
     bool addGestureDetector(GestureDetector* detector);
-    long determineGestureType(const char* strGesture) const;
+    long determineGestureType(const std::string& strGesture) const;
 
 private:
     GestureRecognitor(const GestureRecognitor&);

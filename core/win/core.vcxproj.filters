@@ -80,9 +80,6 @@
     <ClCompile Include="..\src\gestures\Gesture.cpp">
       <Filter>Gestures\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\geometry\Vector3D.cpp">
-      <Filter>Geometry\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\gestures\GestureDetector.cpp">
       <Filter>Gestures\Source Files</Filter>
     </ClCompile>

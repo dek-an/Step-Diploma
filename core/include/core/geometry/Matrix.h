@@ -1,14 +1,12 @@
 #ifndef GEOMETRY_MATRIX_H_
 #define GEOMETRY_MATRIX_H_
 
-#include <memory>
-
 #include "Vector2D.h"
 
 namespace core
 {
 
-template <typename T = float>
+template <typename T/* = float*/>
 class Matrix
 {
 public:
@@ -79,7 +77,7 @@ int Matrix<T>::cols() const
 template <typename T>
 void Matrix<T>::setZero()
 {
-    memset(m_data, 0, m_rows * m_cols);
+    memset(m_data, 0, m_rows * m_cols * sizeof(T));
 }
 
 

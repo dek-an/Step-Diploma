@@ -39,8 +39,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)..\..\out\$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)..\..\out\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir>$(ProjectDir)..\..\..\out\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\..\out\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -49,17 +49,17 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\3dParty\opencv\include;$(ProjectDir)..\..\3dParty\opencv\include\opencv;$(ProjectDir)..\..\core\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\;$(ProjectDir)..\..\..\3dParty\opencv\include;$(ProjectDir)..\..\..\3dParty\opencv\include\opencv;$(ProjectDir)..\..\..\core\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\..\3dParty\opencv\x86\vc10\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\..\..\3dParty\opencv\x86\vc10\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core245d.lib;opencv_highgui245d.lib;opencv_imgproc245d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -94,7 +94,7 @@
     <None Include="..\YUV.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\core\win\core.vcxproj">
+    <ProjectReference Include="..\..\..\core\win\core.vcxproj">
       <Project>{34f66f88-48c4-43ed-b3f8-8eb4209ac46a}</Project>
     </ProjectReference>
   </ItemGroup>

@@ -1,8 +1,6 @@
 #ifndef GESTURES_GESTURE_H_
 #define GESTURES_GESTURE_H_
 
-#include "../geometry/Vector3D.h"
-
 
 namespace core
 {

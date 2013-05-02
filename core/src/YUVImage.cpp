@@ -215,7 +215,7 @@ YUVImage* YUVImage::scaledYUV420SP(int scale) const
         for (const uchar* thIE = thIt + scale; thIt != thIE; ++thIt)
             for (int i = 0, e = m_width * scale; i != e; i += m_width)
                 scVal += *(thIt + i);
-        *scIt = scVal * part;
+        *scIt = static_cast<uchar>(scVal * part);
     }
 
     // uv data
@@ -231,7 +231,7 @@ YUVImage* YUVImage::scaledYUV420SP(int scale) const
             thInnerIt != thIE; thInnerIt += 2)
             for (int i = 0, e = m_width * scale; i != e; i += m_width)
                 scVal += *(thInnerIt + i);
-        *scUVIt = scVal * part;
+        *scUVIt = static_cast<uchar>(scVal * part);
 
         thUVIt += isU + !isU * (2 * scale - 1) + !(iter % scWidth) * m_width * (scale - 1);
 

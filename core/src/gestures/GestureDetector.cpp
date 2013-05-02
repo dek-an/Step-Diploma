@@ -26,7 +26,15 @@ const long PaperScissorsStoneDetector::DetectorType = (long)(void*)"Paper/Scosso
 
 PaperScissorsStoneDetector::PaperScissorsStoneDetector()
     : GestureDetector(DetectorType)
+{}
+
+PaperScissorsStoneDetector::~PaperScissorsStoneDetector()
+{}
+
+
+void PaperScissorsStoneDetector::detect()
 {
+    // detection code here
 }
 
 } // namespace core
