@@ -1,7 +1,7 @@
 #ifndef COMMON_MAINAPPLICATION_H_
 #define COMMON_MAINAPPLICATION_H_
 
-#include <windows.h>
+#include <Windows.h>
 
 namespace application
 {
@@ -26,8 +26,6 @@ private:
     MainApplication& operator=(const MainApplication&);
 
 private:
-    static const INT FRAME_TIME = 33;
-
     HINSTANCE   m_hInstance;
     LPSTR       m_lpCmdLine;
     INT         m_iWndWidth;

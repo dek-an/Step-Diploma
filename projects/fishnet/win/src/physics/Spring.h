@@ -3,6 +3,8 @@
 
 #include "Vector2D.h"
 
+#include <functional>
+
 namespace phys
 {
 
@@ -25,7 +27,9 @@ public:
     // method for applying forces
     void solve();
     // method for drawing spring (without masses)
-    void draw();
+    void draw() const;
+
+    void setDrawer(std::function<void (const Mass*, const Mass*)> drawer);
 
 private:
     Spring(const Spring&);
@@ -38,6 +42,8 @@ private:
     const float mSpringLength;      // the length that the spring does not exert any force
     const float mAirFrictionConstant;   // a constant of air friction applied to masses
     const Vector2DFloat mGravitation;   // gravitation constant applied to masses
+
+    std::function<void (const Mass*, const Mass*)> mDrawer;
 };
 
 } // namespace phys

@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\application\GLDrawer.cpp" />
     <ClCompile Include="src\Application\MainApplication.cpp" />
     <ClCompile Include="src\application\MainProcessor.cpp" />
     <ClCompile Include="src\Application\MainWindow.cpp" />
@@ -18,9 +19,9 @@
     <ClCompile Include="src\physics\Fishnet.cpp" />
     <ClCompile Include="src\physics\Mass.cpp" />
     <ClCompile Include="src\physics\Spring.cpp" />
-    <ClCompile Include="src\physics\TrigonometricTable.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\application\GLDrawer.h" />
     <ClInclude Include="src\Application\MainApplication.h" />
     <ClInclude Include="src\application\MainProcessor.h" />
     <ClInclude Include="src\Application\MainWindow.h" />
@@ -29,7 +30,6 @@
     <ClInclude Include="src\physics\Fishnet.h" />
     <ClInclude Include="src\physics\Mass.h" />
     <ClInclude Include="src\physics\Spring.h" />
-    <ClInclude Include="src\physics\TrigonometricTable.h" />
     <ClInclude Include="src\physics\Vector2D.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

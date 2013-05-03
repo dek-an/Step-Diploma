@@ -1,9 +1,9 @@
 #include "MainWindow.h"
+
 #include "MainProcessor.h"
+#include "GLDrawer.h"
 
 #include <common/CommonException.h>
-
-#include <gl/GL.h>
 
 namespace application
 {
@@ -17,11 +17,30 @@ MainWindow::MainWindow(INT iWidth, INT iHeight)
     , m_iWndWidth(iWidth)
     , m_iWndHeight(iHeight)
     , m_hDeviceContext(NULL)
-    , m_hGLContext(NULL)
     , m_pProcessor(new MainProcessor())
+    , m_pDrawer(new GLDrawer())
 {
     init();
 }
+
+MainWindow::~MainWindow()
+{
+    delete m_pProcessor;
+    delete m_pDrawer;
+
+    if (m_hDeviceContext)
+    {
+        // Release the device context
+        ReleaseDC(m_hWindow, m_hDeviceContext);
+        m_hDeviceContext = NULL;
+    }
+
+    // Finally, destroy our main window and unregister the
+    // window class.
+    DestroyWindow(m_hWindow);
+    UnregisterClass(TEXT(WINDOW_CLASSNAME), GetModuleHandle(NULL));
+}
+
 
 void MainWindow::init()
 {
@@ -48,34 +67,12 @@ void MainWindow::init()
         throw CommonException("Cannot create the main window");
 
     createContext();
-    initGL();
-    ShowWindow(m_hWindow,SW_SHOW);
+    m_pDrawer->init();
+    ShowWindow(m_hWindow, SW_SHOW);
+
+    m_pProcessor->setDrawer(m_pDrawer);
 }
 
-MainWindow::~MainWindow()
-{
-    delete m_pProcessor;
-
-    if (m_hGLContext)
-    {
-        // Make the rendering context not current
-        wglMakeCurrent(NULL,NULL);
-        // Delete the OpenGL rendering context
-        wglDeleteContext(m_hGLContext);
-        m_hGLContext = NULL;
-    }
-    if (m_hDeviceContext)
-    {
-        // Release the device context
-        ReleaseDC(m_hWindow,m_hDeviceContext);
-        m_hDeviceContext = NULL;
-    }
-
-    // Finally, destroy our main window and unregister the
-    // window class.
-    DestroyWindow(m_hWindow);
-    UnregisterClass(TEXT(WINDOW_CLASSNAME), GetModuleHandle(NULL));
-}
 
 LRESULT MainWindow::onEvent(HWND Handle, UINT Message, WPARAM wParam, LPARAM lParam)
 {
@@ -162,39 +159,14 @@ void MainWindow::createContext()
     if (!(m_hDeviceContext = GetDC(m_hWindow))
         || !(PixelFormat = ChoosePixelFormat(m_hDeviceContext, &pfd)) // Do Windows find a matching pixel format ?
         || !SetPixelFormat(m_hDeviceContext, PixelFormat, &pfd) // Set the new pixel format
-        || !(m_hGLContext = wglCreateContext(m_hDeviceContext)) // Create the OpenGL rendering context
-        || !wglMakeCurrent(m_hDeviceContext, m_hGLContext)) // Activate the rendering context
+        || !m_pDrawer->createContext(m_hDeviceContext)) // Activate the rendering context
             throw CommonException("Unable to create rendering context");
 }
 #pragma warning (pop)
 
-void MainWindow::initGL()
+void MainWindow::onSize(INT width, INT height)
 {
-    // Enable 2D texturing
-    glEnable(GL_TEXTURE_2D);
-    // Choose a smooth shading model
-    glShadeModel(GL_SMOOTH);
-    // Set the clear color
-    glClearColor((GLclampf)0.9, (GLclampf)1.0, (GLclampf)1.0, (GLclampf)0.0);
-
-    // Enable the alpha test. This is needed 
-    // to be able to have images with transparent 
-    // parts.
-    glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_GREATER, 0.0f);
-}
-
-void MainWindow::onSize(GLsizei width, GLsizei height)
-{
-    // Sets the size of the OpenGL viewport
-    glViewport(0,0,width,height);
-
-    // Select the projection stack and apply 
-    // an orthographic projection
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0,width,height,0.0,-1.0,1.0);
-    glMatrixMode(GL_MODELVIEW);
+    m_pDrawer->onSize(width, height);
 }
 
 void MainWindow::update(DWORD/* dwCurrentTime*/)
@@ -204,12 +176,10 @@ void MainWindow::update(DWORD/* dwCurrentTime*/)
 
 void MainWindow::draw()
 {
-    // Clear the buffer
-    glClear(GL_COLOR_BUFFER_BIT);
-
+    m_pDrawer->onStartDraw();
     m_pProcessor->draw();
-
     SwapBuffers(m_hDeviceContext);
+    m_pDrawer->onEndDraw();
 }
 
 } // namespace application

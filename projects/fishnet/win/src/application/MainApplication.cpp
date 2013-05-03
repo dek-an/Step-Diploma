@@ -9,6 +9,9 @@
 namespace application
 {
 
+static const INT kFrameTime = 33; // fps
+
+
 using common::CommonException;
 
 MainApplication::MainApplication(HINSTANCE hInstance, LPSTR lpCmdLine)
@@ -50,8 +53,8 @@ void MainApplication::process()
 
     MSG Message;
     Message.message = (UINT)~WM_QUIT;
-    DWORD dwNextDeadLine = GetTickCount() + FRAME_TIME;
-    DWORD dwSleep = FRAME_TIME;
+    DWORD dwNextDeadLine = GetTickCount() + kFrameTime;
+    DWORD dwSleep = kFrameTime;
     BOOLEAN bUpdate = FALSE;
 
     // Loop until a WM_QUIT message is received
@@ -83,7 +86,7 @@ void MainApplication::process()
             // Draw the main window
             mainWindow.draw();
 
-            dwNextDeadLine += FRAME_TIME;
+            dwNextDeadLine += kFrameTime;
         }
 
         // Process the sleep time, which is the difference
@@ -94,10 +97,10 @@ void MainApplication::process()
         // it probably means that the processing was stopped 
         // (e.g. the window was being moved,...), so recalculate
         // the next deadline.
-        if (dwSleep > FRAME_TIME)
+        if (dwSleep > kFrameTime)
         {
-            dwSleep = FRAME_TIME;
-            dwNextDeadLine = GetCurrentTime() + FRAME_TIME;
+            dwSleep = kFrameTime;
+            dwNextDeadLine = GetCurrentTime() + kFrameTime;
         }
     }
 }

@@ -1,12 +1,8 @@
 #include "Mass.h"
 
-#include "TrigonometricTable.h"
 #include "Constants.h"
 
 #include <common/CommonException.h>
-
-#include <Windows.h>
-#include <gl/GL.h>
 
 namespace phys
 {
@@ -48,21 +44,21 @@ void Mass::simulate(float dt)
     mPosition += mVelocity * dt + (mForce / mMass) * dt * dt / 2;
 }
 
-void Mass::draw()
+void Mass::draw() const
 {
-    glBegin(GL_TRIANGLE_FAN);
-
-    for (int i = 0; i < 360; i += 10)
-        glVertex2f( mPosition.x() + POINT_RADIUS * TrigonometricTable::COS_TABLE[i],
-                    mPosition.y() + POINT_RADIUS * TrigonometricTable::SIN_TABLE[i]);
-
-    glEnd();
+    if (!mDrawer._Empty())
+        mDrawer(this);
 }
 
 
 void Mass::setPosition(const Vector2DFloat& position)
 {
     mPosition = position;
+}
+
+void Mass::setDrawer(std::function<void (const Mass*)> drawer)
+{
+    mDrawer = drawer;
 }
 
 

@@ -7,6 +7,7 @@ namespace application
 {
 
 class MainProcessor;
+class GLDrawer;
 
 // The main window class
 class MainWindow
@@ -27,8 +28,6 @@ private:
     void registerWindowClass();
     // Create the rendering context used by OpenGL
     void createContext();
-    // Initialize openGL
-    void initGL();
 
     // Called when a WM_SIZE message is received
     void onSize(INT width, INT height);
@@ -47,8 +46,8 @@ private:
     INT             m_iWndWidth;        // Window width
     INT             m_iWndHeight;       // Window height
     HDC             m_hDeviceContext;   // The window device context
-    HGLRC           m_hGLContext;       // The openGL context.
     MainProcessor*  m_pProcessor;       // Main engine
+    GLDrawer*       m_pDrawer;
 };
 
 } // namespace application

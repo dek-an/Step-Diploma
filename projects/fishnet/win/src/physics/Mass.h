@@ -3,6 +3,9 @@
 
 #include "Vector2D.h"
 
+#include <functional>
+
+
 namespace phys
 {
 
@@ -24,9 +27,10 @@ public:
     // calculates the new velocity and new position of the mass according to change in time (dt)
     void simulate(float dt);
     // mass drawing
-    void draw();
+    void draw() const;
 
     void setPosition(const Vector2DFloat& position);
+    void setDrawer(std::function<void (const Mass*)> drawer);
 
     float mass() const;
     const Vector2DFloat& position() const;
@@ -41,6 +45,7 @@ private:
     Vector2DFloat mPosition;    // Position in a plane
     Vector2DFloat mVelocity;    // Velocity
     Vector2DFloat mForce;       // Force applied on this Mass
+    std::function<void (const Mass*)> mDrawer;
 };
 
 } // namespace phys

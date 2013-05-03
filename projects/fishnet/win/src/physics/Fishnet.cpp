@@ -132,7 +132,7 @@ void Fishnet::operate(float dt, Mass *pTouchedMass)
     simulate(dt, pTouchedMass);
 }
 
-void Fishnet::draw()
+void Fishnet::draw() const
 {
     // draw all springs
     for (int i = 0; i < mNumOfSprings; i++)
@@ -161,6 +161,20 @@ Mass* Fishnet::isPointInMass(float xCoord, float yCoord) const
             }
 
     return 0;
+}
+
+
+void Fishnet::setSpringDrawer(SpringDrawer springDrawer)
+{
+    for (SpringPtr *i = mSprings, *e = i + mNumOfSprings; i != e; ++i)
+        (*i)->setDrawer(springDrawer);
+}
+
+void Fishnet::setMassDrawer(MassDrawer massDrawer)
+{
+    for (int i = 0; i < mNumOfMassesHeight; ++i)
+        for (int j = 0; j < mNumOfMassesWidth; ++j)
+            mMasses[i][j]->setDrawer(massDrawer);
 }
 
 } // namespace phys

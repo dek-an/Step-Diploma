@@ -2,8 +2,7 @@
 
 #include "Mass.h"
 
-#include <Windows.h>
-#include <gl/GL.h>
+#include <common/CommonException.h>
 
 namespace phys
 {
@@ -23,6 +22,8 @@ Spring::Spring(
     , mAirFrictionConstant(airFrictionConstant)
     , mGravitation(gravitation)
 {
+    if (!mass1 || !mass2)
+        throw common::CommonException("Spring.cpp;\nSpring::Spring();\nillegal parameters");
 }
 
 
@@ -43,15 +44,16 @@ void Spring::solve()
     mMass2->applyForce(-force - mMass2->velocity() * mAirFrictionConstant + mGravitation * mMass2->mass());
 }
 
-void Spring::draw()
+void Spring::draw() const
 {
-    glBegin(GL_LINE_STRIP);
+    if (!mDrawer._Empty())
+        mDrawer(mMass1, mMass2);
+}
 
-    glColor3f(0.0, 0.0, 0.0);
-    glVertex2f(mMass1->position().x(), mMass1->position().y());
-    glVertex2f(mMass2->position().x(), mMass2->position().y());
 
-    glEnd();
+void Spring::setDrawer(std::function<void (const Mass*, const Mass*)> drawer)
+{
+    mDrawer = drawer;
 }
 
 } // namespace phys

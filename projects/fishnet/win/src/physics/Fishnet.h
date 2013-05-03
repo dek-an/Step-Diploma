@@ -3,6 +3,8 @@
 
 #include "Vector2D.h"
 
+#include <functional>
+
 namespace phys
 {
 
@@ -14,7 +16,10 @@ class Spring;
 class Fishnet
 {
 public:
+    typedef std::function<void (const Mass*, const Mass*)> SpringDrawer;
+    typedef std::function<void (const Mass*)> MassDrawer;
 
+public:
     Fishnet(
                 int numOfMassesWidth,
                 int numOfMassesHeight,
@@ -32,10 +37,13 @@ public:
     // the complete procedure of simulation
     void operate(float dt, Mass* pTouchedMass);
     // draws fishnet with all springs and masses
-    void draw();
+    void draw() const;
     // check wether if the point P(xCoord, yCoord) in the drawn mass;
     // returns the mass in which the point
     Mass* isPointInMass(float xCoord, float yCoord) const;
+
+    void setSpringDrawer(SpringDrawer springDrawer);
+    void setMassDrawer(MassDrawer massDrawer);
 
 private:
     // reset state of the fishnet

@@ -1,6 +1,7 @@
 #ifndef APPLICATION_MAINPROCESSOR_H_
 #define APPLICATION_MAINPROCESSOR_H_
 
+
 namespace phys
 {
 class Fishnet;
@@ -9,6 +10,8 @@ class Mass;
 
 namespace application
 {
+
+class GLDrawer;
 
 // class MainProcessor - an engine of programm;
 // manages the functionality of the program
@@ -22,7 +25,9 @@ public:
     // call operate() method for mpFisnet
     void update();
     // draws all fishnet
-    void draw();
+    void draw() const;
+    // sets drawer support
+    void setDrawer(GLDrawer* drawer);
 
     void onLeftButtonDown(float xCoord, float yCoord);
     void onLeftButtonUp(float xCoord, float yCoord);

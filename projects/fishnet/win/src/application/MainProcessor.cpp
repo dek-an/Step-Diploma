@@ -1,7 +1,8 @@
 #include "MainProcessor.h"
 
+#include "GLDrawer.h"
+
 #include <physics/Constants.h>
-#include <physics/TrigonometricTable.h>
 #include <physics/Fishnet.h>
 #include <physics/Mass.h>
 
@@ -22,9 +23,7 @@ MainProcessor::MainProcessor()
         phys::SPRING_LENGTH,
         phys::AIR_FRICTION_CONSTANT))
     , m_pTouchedMass(0)
-{
-    phys::TrigonometricTable::init();
-}
+{}
 
 MainProcessor::~MainProcessor()
 {
@@ -38,10 +37,21 @@ void MainProcessor::update()
         m_pFishnet->operate(i, m_pTouchedMass);
 }
 
-void MainProcessor::draw()
+void MainProcessor::draw() const
 {
     m_pFishnet->draw(); // draw the fishnet
 }
+
+
+void MainProcessor::setDrawer(GLDrawer* drawer)
+{
+    if (!drawer)
+        return;
+
+    m_pFishnet->setSpringDrawer(*drawer);
+    m_pFishnet->setMassDrawer(*drawer);
+}
+
 
 void MainProcessor::onLeftButtonDown(float xCoord, float yCoord)
 {

@@ -42,9 +42,6 @@
     <ClCompile Include="src\application\MainProcessor.cpp">
       <Filter>Source Files\Application</Filter>
     </ClCompile>
-    <ClCompile Include="src\physics\TrigonometricTable.cpp">
-      <Filter>Source Files\Physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\physics\Fishnet.cpp">
       <Filter>Source Files\Physics</Filter>
     </ClCompile>
@@ -53,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="src\physics\Spring.cpp">
       <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application\GLDrawer.cpp">
+      <Filter>Source Files\Application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,9 +68,6 @@
     <ClInclude Include="src\application\MainProcessor.h">
       <Filter>Header Files\Application</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\TrigonometricTable.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\physics\Constants.h">
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
@@ -85,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="src\physics\Spring.h">
       <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\application\GLDrawer.h">
+      <Filter>Header Files\Application</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
