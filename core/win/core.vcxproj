@@ -11,15 +11,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\BackProjectingHistogram.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\src\Contour.cpp" />
     <ClCompile Include="..\src\ContourDetector.cpp" />
     <ClCompile Include="..\src\gestures\Gesture.cpp" />
     <ClCompile Include="..\src\gestures\GestureDetector.cpp" />
     <ClCompile Include="..\src\gestures\GestureRecognitor.cpp" />
+    <ClCompile Include="..\src\ImageUtilites.cpp" />
     <ClCompile Include="..\src\IntegralImage.cpp" />
     <ClCompile Include="..\src\YUVImage.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\core\BackProjectingHistogram.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="..\include\core\Contour.h" />
     <ClInclude Include="..\include\core\ContourDetector.h" />
     <ClInclude Include="..\include\core\geometry\Matrix.h" />
@@ -28,6 +35,7 @@
     <ClInclude Include="..\include\core\gestures\Gesture.h" />
     <ClInclude Include="..\include\core\gestures\GestureDetector.h" />
     <ClInclude Include="..\include\core\gestures\GestureRecognitor.h" />
+    <ClInclude Include="..\include\core\ImageUtilites.h" />
     <ClInclude Include="..\include\core\IntegralImage.h" />
     <ClInclude Include="..\include\core\typedefs.h" />
     <ClInclude Include="..\include\core\YUVImage.h" />

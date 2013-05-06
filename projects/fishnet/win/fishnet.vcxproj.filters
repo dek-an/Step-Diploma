@@ -1,90 +1,97 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Application">
-      <UniqueIdentifier>{e551d5f9-c1e8-484a-a407-1134fcdc2af6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Application">
+    <Filter Include="Application">
       <UniqueIdentifier>{5d0f930c-8c00-4bbd-ab1f-1000f177b168}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Common">
+    <Filter Include="Application\Header Files">
+      <UniqueIdentifier>{673a1396-586e-462e-8faf-488680d534a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Source Files">
+      <UniqueIdentifier>{9446b452-b325-4b31-b2fc-742ee7c180c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common">
       <UniqueIdentifier>{98631dd3-3e9f-4982-8aeb-6b4504a1f2d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Physics">
+    <Filter Include="Common\Header Files">
+      <UniqueIdentifier>{bd60f298-cd0c-45d4-b890-85c32273a6dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common\Source Files">
+      <UniqueIdentifier>{82be8315-fe1c-4be4-a82b-487ee0611118}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics">
       <UniqueIdentifier>{3d7d2e47-6dbb-4cac-ad6b-a2a1adf1e0c5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Physics">
-      <UniqueIdentifier>{0113a2b8-c333-4814-bac7-774469b52716}</UniqueIdentifier>
+    <Filter Include="Physics\Header Files">
+      <UniqueIdentifier>{dad453bd-a593-47a8-b71c-5c1a95701d5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Physics\Source Files">
+      <UniqueIdentifier>{11714e52-ee0b-482e-aafc-8ab4e8f60d19}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ca1355e3-4e5e-4937-844f-1a69dfd6385f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\application\GLDrawer.cpp">
+      <Filter>Application\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\MainWindow.cpp">
+      <Filter>Application\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Application\MainApplication.cpp">
+      <Filter>Application\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\application\MainProcessor.cpp">
+      <Filter>Application\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics\Fishnet.cpp">
+      <Filter>Physics\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics\Spring.cpp">
+      <Filter>Physics\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\physics\Mass.cpp">
+      <Filter>Physics\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Application\MainApplication.cpp">
-      <Filter>Source Files\Application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Application\MainWindow.cpp">
-      <Filter>Source Files\Application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\application\MainProcessor.cpp">
-      <Filter>Source Files\Application</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physics\Fishnet.cpp">
-      <Filter>Source Files\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physics\Mass.cpp">
-      <Filter>Source Files\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\physics\Spring.cpp">
-      <Filter>Source Files\Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\application\GLDrawer.cpp">
-      <Filter>Source Files\Application</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Application\MainApplication.h">
-      <Filter>Header Files\Application</Filter>
+    <ClInclude Include="src\application\GLDrawer.h">
+      <Filter>Application\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Application\MainWindow.h">
-      <Filter>Header Files\Application</Filter>
+      <Filter>Application\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\common\CommonException.h">
-      <Filter>Header Files\Common</Filter>
+    <ClInclude Include="src\Application\MainApplication.h">
+      <Filter>Application\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\application\MainProcessor.h">
-      <Filter>Header Files\Application</Filter>
+      <Filter>Application\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\physics\Constants.h">
-      <Filter>Header Files\Physics</Filter>
+    <ClInclude Include="src\common\CommonException.h">
+      <Filter>Common\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\Vector2D.h">
-      <Filter>Header Files\Physics</Filter>
+      <Filter>Physics\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\physics\Constants.h">
+      <Filter>Physics\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\Fishnet.h">
-      <Filter>Header Files\Physics</Filter>
+      <Filter>Physics\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\Mass.h">
-      <Filter>Header Files\Physics</Filter>
+      <Filter>Physics\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\physics\Spring.h">
-      <Filter>Header Files\Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\application\GLDrawer.h">
-      <Filter>Header Files\Application</Filter>
+      <Filter>Physics\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

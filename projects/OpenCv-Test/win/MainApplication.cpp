@@ -1,4 +1,4 @@
-#include "Application.h"
+#include "MainApplication.h"
 
 #include <highgui.h>
 #include <cv.h>
@@ -7,19 +7,25 @@
 #include <core/gestures/GestureRecognitor.h>
 #include <core/ContourDetector.h>
 
-using namespace core;
-
-Application::Application(void)
+namespace application
 {
-    
+
+MainApplication::MainApplication(void)
+    : mYuvFrame(0)
+    , mGrayResult(0)
+{}
+
+MainApplication::~MainApplication(void)
+{
+    if (mYuvFrame)
+        cvReleaseImage(&mYuvFrame);
+
+    if (mGrayResult)
+        cvReleaseImage(&mGrayResult);
 }
 
-Application::~Application(void)
-{
-    
-}
 
-int Application::run(void)
+int MainApplication::run(void)
 {
     //showHelloWorld();
     captureCamera();
@@ -29,7 +35,88 @@ int Application::run(void)
     return 0;
 }
 
-void Application::showHelloWorld(void)
+
+void MainApplication::captureCamera(void)
+{
+    CvCapture* cam(cvCreateCameraCapture(CV_CAP_ANY));
+    if (!cam)
+    {
+        printf("Error in camera initialization\n");
+        return;
+    }
+
+    printf("CAMERA FORMAT: %f\n", cvGetCaptureProperty(cam, CV_CAP_PROP_BRIGHTNESS));
+
+    // Creating of windows
+    cvNamedWindow("CamWnd", CV_WINDOW_AUTOSIZE);
+    cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
+
+    IplImage* frameRGB = 0;
+
+    for (;;)
+    {
+        frameRGB = cvQueryFrame(cam);
+
+        cvShowImage("Original", frameRGB);
+        frameCaptured(*frameRGB);
+
+        if (mGrayResult)
+            cvShowImage("CamWnd", mGrayResult);
+
+        // waiting for esc
+        if (cvWaitKey(33) == 27)
+            break;
+    }
+
+    cvReleaseCapture(&cam);
+    cvDestroyAllWindows();
+}
+
+
+void MainApplication::frameCaptured(const IplImage& frameRGB)
+{
+    //backProjectingMask(frameRGB);
+    skinContourExtraction(frameRGB);
+}
+
+
+void MainApplication::backProjectingMask(const IplImage& frameRGB)
+{
+    
+}
+
+void MainApplication::skinContourExtraction(const IplImage& frameRGB)
+{
+    const int width = frameRGB.width;
+    const int height = frameRGB.height;
+
+    if (!mYuvFrame)
+        mYuvFrame = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
+
+    cvCvtColor(&frameRGB, mYuvFrame, CV_BGR2YUV);
+
+    static core::ContourDetector cd(core::GestureRecognitor::skinBinarizationFunction);
+
+    core::YUVImage img(core::YUVImage::YUV, width, height, (unsigned char*)mYuvFrame->imageData);
+
+    cd.detect(img);
+
+    if (!mGrayResult)
+        mGrayResult = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
+
+    memset(mGrayResult->imageData, 0, width * height * sizeof(char));
+
+    typedef core::Contour::ContourIterator ContourIter;
+    core::Contour cont = cd.getContour();
+    ContourIter begin = cont.begin();
+    ContourIter end = cont.end();
+    for (ContourIter it = begin; it != end; ++it)
+        mGrayResult->imageData[it->x() * width + it->y()] = 255;
+}
+
+// -------------------- Debug ------------------------
+
+void MainApplication::showHelloWorld(void)
 {
     int height = 600;
     int width = 800;
@@ -48,43 +135,19 @@ void Application::showHelloWorld(void)
     cvShowImage("Hello World", hw);
     cvShowImage("One more", hw);
 
-    waitForEsc();
+    // waiting for esc 
+    char c = 0;
+    while (c != 27)
+        c = cvWaitKey(0);
 
     cvReleaseImage(&hw);
     cvDestroyWindow("Hello World");
     cvDestroyWindow("One more");
 }
 
-void Application::captureCamera(void)
+void MainApplication::processImage(const char* imgFile)
 {
-    CvCapture* cam(cvCreateCameraCapture(CV_CAP_ANY));
-    assert(cam);
-    printf("FORMAT: %f\n", cvGetCaptureProperty(cam, CV_CAP_PROP_BRIGHTNESS));
-
-    cvNamedWindow("CamWnd", CV_WINDOW_AUTOSIZE);
-    cvNamedWindow("Original", CV_WINDOW_AUTOSIZE);
-
-    IplImage* frameRGB = 0;
-
-    while (true)
-    {
-        frameRGB = cvQueryFrame(cam);
-
-        cvShowImage("Original", frameRGB);
-        firstTestings(*frameRGB);
-
-        char bttn = cvWaitKey(33);
-        if (bttn == 27)
-            break;
-    }
-
-    cvReleaseCapture(&cam);
-    cvDestroyAllWindows();
-}
-
-void Application::processImage(const char* imgFile)
-{
-    IplImage* img( cvLoadImage(imgFile) );
+    IplImage* img(cvLoadImage(imgFile));
     if (!img)
     {
         printf("Error in image (%s) loading\n", imgFile);
@@ -104,6 +167,7 @@ void Application::processImage(const char* imgFile)
         cvDestroyWindow("original");
         return;
     }
+
     cvNamedWindow("result", CV_WINDOW_AUTOSIZE);
     cvShowImage("result", result);
 
@@ -112,65 +176,11 @@ void Application::processImage(const char* imgFile)
     cvReleaseImage(&img);
     cvReleaseImage(&result);
 
-    cvDestroyWindow("original");
-    cvDestroyWindow("result");
+    cvDestroyAllWindows();
 }
 
-void Application::waitForEsc(int delay)
-{
-    char c = 0;
-    while (c != 27)
-        c = cvWaitKey(delay);
-}
 
-void Application::firstTestings(const IplImage& frameRGB)
-{
-    static ContourDetector cd(GestureRecognitor::skinBinarizationFunction);
-
-    static IplImage* frameYUV = 0;
-    static IplImage* frameGRAY = 0;
-    static unsigned char* data = 0;
-
-    const int width = frameRGB.width;
-    const int height = frameRGB.height;
-    const int size = (width * height * 3);
-
-    if (!data)
-    {
-        data = new unsigned char[size];
-        frameYUV = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 3);
-        frameGRAY = cvCreateImage(cvSize(width, height), IPL_DEPTH_8U, 1);
-    }
-
-    cvCvtColor(&frameRGB, frameYUV, CV_BGR2YUV);
-    cvCvtColor(&frameRGB, frameGRAY, CV_BGR2GRAY);
-
-    for (int i = 0; i < size; ++i)
-        data[i] = (unsigned char)frameYUV->imageData[i];
-
-    YUVImage img(YUVImage::YUV, frameYUV->width, frameYUV->height, data);
-
-    cd.detect(img);
-    //img.doBinaryMask(GestureRecognitor::skinBinarizationFunction);
-    //img.smoothBinaryMask();
-    for (int i = 0; i < height; ++i)
-        //frameGRAY->imageData[i] = grayImg->data()[i];
-        for (int j = 0; j < width; ++j)
-            frameGRAY->imageData[i * width + j] = 0;//img.m_binaryMask(i, j);
-//        delete grayImg;
-
-    Contour cont = cd.getContour();
-    Contour::ContourIterator begin = cont.begin();
-    Contour::ContourIterator end = cont.end();
-    int kk = 0;
-    for (Contour::ContourIterator it = begin; it != end; ++it, ++kk)
-        frameGRAY->imageData[it->x() * width + it->y()] = 255;
-
-    if (frameGRAY)
-        cvShowImage("CamWnd", frameGRAY);
-}
-
-IplImage* Application::scaleImageGRAY(const IplImage& frameRGB, int scale/* = 2*/)
+IplImage* MainApplication::scaleImageGRAY(const IplImage& frameRGB, int scale/* = 2*/)
 {
     const int width = frameRGB.width;
     const int height = frameRGB.height;
@@ -186,8 +196,8 @@ IplImage* Application::scaleImageGRAY(const IplImage& frameRGB, int scale/* = 2*
         data[i] = (unsigned char)gray->imageData[i];
     cvReleaseImage(&gray);
 
-    YUVImage img(YUVImage::YUV420SP, width, height, data);
-    YUVImage* scaled = img.scaled(scale);
+    core::YUVImage img(core::YUVImage::YUV420SP, width, height, data);
+    core::YUVImage* scaled = img.scaled(scale);
 
     const int scWidth = scaled->width();
     const int scHeight = scaled->height();
@@ -203,7 +213,7 @@ IplImage* Application::scaleImageGRAY(const IplImage& frameRGB, int scale/* = 2*
     return gray;
 }
 
-IplImage* Application::scaleImageYUV(const IplImage& frameRGB, int scale/* = 2*/)
+IplImage* MainApplication::scaleImageYUV(const IplImage& frameRGB, int scale/* = 2*/)
 {
     const int width = frameRGB.width;
     const int width3 = 3 * width;
@@ -248,8 +258,8 @@ IplImage* Application::scaleImageYUV(const IplImage& frameRGB, int scale/* = 2*/
     }
     cvReleaseImage(&yuv);
 
-    YUVImage img(YUVImage::YUV420SP, width, height, data);
-    YUVImage* scaled = img.scaled(scale);
+    core::YUVImage img(core::YUVImage::YUV420SP, width, height, data);
+    core::YUVImage* scaled = img.scaled(scale);
     delete data;
     if (!scaled)
     {
@@ -268,16 +278,14 @@ IplImage* Application::scaleImageYUV(const IplImage& frameRGB, int scale/* = 2*/
     for (i; i < scImgSize; ++i)
         yuv->imageData[3 * i] = data[i];
     i = 1;
-    for (YUVImage::iterator it = scaled->beginU(), e = scaled->endU(); it != e; ++it, i += 3)
+    for (core::YUVImage::iterator it = scaled->beginU(), e = scaled->endU(); it != e; ++it, i += 3)
         yuv->imageData[i] = *it;
     i = 2;
-    for (YUVImage::iterator it = scaled->beginV(), e = scaled->endV(); it != e; ++it, i += 3)
+    for (core::YUVImage::iterator it = scaled->beginV(), e = scaled->endV(); it != e; ++it, i += 3)
         yuv->imageData[i] = *it;
     delete scaled;
 
-    //IplImage* bgr = cvCreateImage(cvSize(scWidth, scHeight), IPL_DEPTH_8U, 3);
-    //cvConvertImage(yuv, bgr, CV_YUV2BGR);
-    //cvReleaseImage(&yuv);
-    //return bgr;
     return yuv;
 }
+
+} // namespace app

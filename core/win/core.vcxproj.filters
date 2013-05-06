@@ -69,6 +69,12 @@
     <ClInclude Include="..\include\core\typedefs.h">
       <Filter>Core\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\core\ImageUtilites.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\core\BackProjectingHistogram.h">
+      <Filter>Core\Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\YUVImage.cpp">
@@ -90,6 +96,12 @@
       <Filter>Core\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\IntegralImage.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ImageUtilites.cpp">
+      <Filter>Core\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\BackProjectingHistogram.cpp">
       <Filter>Core\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
